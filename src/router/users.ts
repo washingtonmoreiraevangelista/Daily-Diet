@@ -2,12 +2,13 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { knex } from '../dataBase'
 import { randomUUID } from 'node:crypto'
-import { checkSessionIdExists } from '../hook/preHandler'
+import { authenticate } from '../hook/auth'
 
 export async function usersRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (request) => {
     console.log(`[${request.method}] ${request.url}`)
   })
+
 
   app.post('/', async (request, reply) => {
     const createUserBodySchema = z.object({
@@ -23,39 +24,72 @@ export async function usersRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'User already exists' })
     }
 
-    const sessionId = randomUUID()
+    if (password.length !== 8) {
+      throw new Error("Password must contain exactly 8 characters.")
+    }
 
-    reply.cookie('sessionId', sessionId, {
-      path: '/',
-      maxAge: 1000 * 60 * 60 * 24 * 7,
-      httpOnly: true,
-    })
+    // Removir a função session id pelo jwt
+
+    // const sessionId = randomUUID()
+
+    // reply.cookie('sessionId', sessionId, {
+    //   path: '/',
+    //   maxAge: 1000 * 60 * 60 * 24 * 7,
+    //   httpOnly: true,
+    // })
 
 
     if (!name || !password) {
       return reply.status(400).send({ error: 'Name and password are required' })
     }
 
+    const userId = randomUUID()
+
     await knex('users').insert({
-      id: randomUUID(),
+      id: userId,
       name,
       password,
-      session_id: sessionId,
       created_at: new Date().toISOString()
     })
 
-    return reply.status(201).send("Usuário criado com sucesso!")
+    const token = app.jwt.sign({}, { sub: userId, expiresIn: '30m' })
+
+    return reply.status(201).send({ message: 'Usuário criado com sucesso!', token })
+
 
   })
 
 
-  app.get('/', { preHandler: [checkSessionIdExists] }, async (_request, _reply) => {
+  app.post('/login', async (request, reply) => {
+    const loginBodySchema = z.object({
+      name: z.string(),
+      password: z.string(),
+    })
+
+    const { name, password } = loginBodySchema.parse(request.body)
+
+    const user = await knex('users')
+      .where({ name, password })
+      .first()
+
+    if (!user || user.password !== password) {
+      return reply.status(401).send({ error: 'Credenciais inválidas' })
+    }
+
+    const token = app.jwt.sign({}, { sub: user.id, expiresIn: '30m' })
+
+    return reply.send({ message: 'login realizado com sucesso ', token })
+    
+  })
+
+
+  app.get('/', { preHandler: [authenticate] }, async (_request, _reply) => {
     const users = await knex('users').select('*')
     return { users }
 
   })
 
-  app.get('/:id', { preHandler: [checkSessionIdExists] }, async (request, reply) => {
+  app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string }
 
     const user = await knex('users')
@@ -71,7 +105,7 @@ export async function usersRoutes(app: FastifyInstance) {
 
   })
 
-  app.delete('/:id', { preHandler: [checkSessionIdExists] }, async (request, reply) => {
+  app.delete('/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const { id } = request.params as { id: string }
 
     const user = await knex('users')
@@ -85,9 +119,5 @@ export async function usersRoutes(app: FastifyInstance) {
     return { user }
 
   })
-
-
-
-
 
 }

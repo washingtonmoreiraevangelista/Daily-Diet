@@ -5,12 +5,12 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('id').primary()
     table.text('name').notNullable()
     table.text('password').notNullable()
-    table.string('session_id').nullable() 
     table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('meals', (table) => {
     table.uuid('id').primary()
+    table.uuid('user_id').notNullable()
     table.text('name').notNullable()
     table.text('description').notNullable()
     table.text('date').notNullable()

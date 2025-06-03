@@ -37,11 +37,28 @@ export const registerDiet = async (app: FastifyInstance) => {
 
   })
 
-  app.get('/', { preHandler: [authenticate] }, async (_request, _reply) => {
-    const diet = await knex('meals').select('*')
-    return { diet }
-  })
+  app.get('/', { preHandler: [authenticate] }, async (request, reply) => {
+    const userId = (request.user as { sub: string }).sub
+    const diet = await knex('meals').where({ user_id: userId }).select('*')
 
+    if (diet.length === 0) {
+      return reply.status(400).send({mesage:'Nenhuma dieta registrada!',diet})
+    }
+
+    return reply.status(200).send({diet})
+
+    })
+
+    app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
+      const {id} = request.params as { id: string }
+
+      const diet = await knex('meals')
+      .where({id})
+      .first()
+
+      return reply.send({diet})
+      
+    })
 
 
 }

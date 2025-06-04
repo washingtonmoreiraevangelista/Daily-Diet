@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify'
 import { randomUUID } from 'node:crypto'
 import z from 'zod'
 import { knex } from '../dataBase'
-import { request } from 'node:http'
 import { authenticate } from '../hook/auth'
 
 export const registerDiet = async (app: FastifyInstance) => {
@@ -16,7 +15,7 @@ export const registerDiet = async (app: FastifyInstance) => {
       description: z.string(),
       date: z.string(),
       time: z.string(),
-      is_diet: z.string(),
+      is_diet: z.enum(['sim', 'não']),
     })
 
     const { name, description, date, time, is_diet } = createDietBodySchema.parse(request.body)
@@ -112,5 +111,43 @@ export const registerDiet = async (app: FastifyInstance) => {
 
     return reply.status(200).send({ message: 'Dieta deletada com sucesso!' })
   })
+
+  app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {
+    const userId = (request.user as { sub: string }).sub
+
+
+    const allDiet = await knex('meals')
+      .where({ user_id: userId })
+      .select('*')
+      .orderBy('date', 'asc')
+
+    const totalDiet = allDiet.length
+    const withinDiet = allDiet.filter((meal) => meal.is_diet === 'sim').length
+    const outDiet = totalDiet - withinDiet
+
+    let bestSequence = 0
+    let currentSequence = 0
+
+    for (const meal of allDiet) {
+      // Verifica se a refeição está dentro da dieta
+      if (meal.is_diet === 'sim') {
+        currentSequence++
+        // Atualiza a melhor sequência
+        bestSequence = Math.max(bestSequence, currentSequence)
+      } else {
+        // Reinicia a sequência se a refeição está fora da dieta
+        currentSequence = 0
+      }
+    }
+    return reply.send({
+      totalMeals: totalDiet,
+      withinDiet,
+      outDiet,
+      bestDietSequence: bestSequence,
+    })
+
+  })
+
+
 
 }

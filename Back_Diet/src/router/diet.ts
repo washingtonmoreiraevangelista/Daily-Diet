@@ -128,7 +128,8 @@ export const registerDiet = async (app: FastifyInstance) => {
     let bestSequence = 0
     let currentSequence = 0
 
-    for (const meal of allDiet) {
+    //for..in
+   for (const meal of allDiet) {
       // Verifica se a refeição está dentro da dieta
       if (meal.is_diet === 'sim') {
         currentSequence++
@@ -139,6 +140,7 @@ export const registerDiet = async (app: FastifyInstance) => {
         currentSequence = 0
       }
     }
+
     return reply.send({
       totalMeals: totalDiet,
       withinDiet,

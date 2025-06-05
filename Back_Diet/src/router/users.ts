@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { knex } from '../dataBase'
 import { randomUUID } from 'node:crypto'
 import { authenticate } from '../hook/auth'
-
+import bcrypt from 'bcrypt'
 export async function usersRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (request) => {
     console.log(`[${request.method}] ${request.url}`)
@@ -44,11 +44,12 @@ export async function usersRoutes(app: FastifyInstance) {
     }
 
     const userId = randomUUID()
+    const hashedPassword = await bcrypt.hash(password, 8)
 
     await knex('users').insert({
       id: userId,
       name,
-      password,
+      password: hashedPassword,
       created_at: new Date().toISOString()
     })
 
@@ -69,17 +70,17 @@ export async function usersRoutes(app: FastifyInstance) {
     const { name, password } = loginBodySchema.parse(request.body)
 
     const user = await knex('users')
-      .where({ name, password })
+      .where({ name })
       .first()
 
-    if (!user || user.password !== password) {
+    if (!user || !(await bcrypt.compare(password, user.password))) {
       return reply.status(401).send({ error: 'Credenciais inválidas' })
     }
 
     const token = app.jwt.sign({}, { sub: user.id, expiresIn: '30m' })
 
     return reply.send({ message: 'login realizado com sucesso ', token })
-    
+
   })
 
 

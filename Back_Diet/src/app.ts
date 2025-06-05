@@ -3,13 +3,14 @@ import cookie from '@fastify/cookie'
 import { usersRoutes } from './router/users'
 import { registerDiet } from './router/diet'
 import { fastifyJwt } from 'fastify-jwt'
+import cors from '@fastify/cors'
 
 export const app = fastify()
 
-app.get('/hello', async () => {
-  return('ola mundo')
+app.register(cors, {
+  origin: 'http://localhost:5173', 
+  credentials: true,              
 })
-
 app.register(fastifyJwt, {
   secret: process.env.JWT_SECRET || '',
 })

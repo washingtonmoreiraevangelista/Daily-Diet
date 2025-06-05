@@ -1,15 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios'
 
-const proxy = import.meta.env.VITE_PROJETO_BACK_PROXY
 
+const proxy = import.meta.env.VITE_USE_PROXY
 const baseUrl = import.meta.env.VITE_PROJETO_BACK
 
-const proxyUrl = '/api'
-
-
 const connectAxios = axios.create({
-  baseURL: proxy && proxy === 'true' ? proxyUrl : baseUrl,
+  baseURL: proxy === 'true' ? '/api' : baseUrl,
 })
 
 export async function environment(

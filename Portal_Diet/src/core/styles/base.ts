@@ -4,7 +4,7 @@ const theme = responsiveFontSizes(
   createTheme({
     palette: {
       primary: {
-        main: '#87CEFA',
+        main: '#256d64',      
         contrastText: '#FFF',
       },
       secondary: {

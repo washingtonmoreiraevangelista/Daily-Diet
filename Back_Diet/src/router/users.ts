@@ -10,7 +10,7 @@ export async function usersRoutes(app: FastifyInstance) {
   })
 
 
-  app.post('/', async (request, reply) => {
+  app.post('/register', async (request, reply) => {
     const createUserBodySchema = z.object({
       name: z.string(),
       password: z.string(),
@@ -24,8 +24,10 @@ export async function usersRoutes(app: FastifyInstance) {
       return reply.status(400).send({ error: 'User already exists' })
     }
 
-    if (password.length !== 8) {
-      throw new Error("Password must contain exactly 8 characters.")
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
+
+    if (!passwordRegex.test(password)) {
+      throw new Error("A senha deve conter pelo menos 8 caracteres, incluindo letras e números.")
     }
 
     // Removir a função session id pelo jwt

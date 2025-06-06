@@ -1,15 +1,23 @@
 import React, { useState } from "react"
-import { Box, TextField, Button, Typography, Alert } from "@mui/material"
+import { Box, TextField, Button, Typography, Alert, InputAdornment, IconButton, Link } from "@mui/material"
 import type { IUser } from '../../@types'
-import { useNavigate } from 'react-router'
+import { useNavigate, Link as RouterLink } from 'react-router'
+import { authService } from '../../service/user.service'
+import { Visibility, VisibilityOff } from '@mui/icons-material'
+import { theme } from '../../core/styles/base'
+import dietImage from '../../assets/diet.png'
+
 
 export const Register = () => {
   const [user, setUser] = useState<IUser>({
     name: "",
     password: "",
   })
+
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+
   const navigate = useNavigate()
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,31 +25,30 @@ export const Register = () => {
   }
 
   const handleRegister = async () => {
-    if (!user.name || !user.email || !user.password || !user.birthDate) {
+    if (!user.name || !user.password) {
       setError(" Preencha todos os campos!")
       return
     }
 
     if (user.name.trim().split(" ").length < 2) {
-      setError(" Informe seu nome completo!")
+      setError(" Informe seu nome !")
       return
     }
 
-    if (user.password.length > 6) {
-      setError(" A senha deve ter no máximo 6 caracteres!")
+    if (user.password.length > 8) {
+      setError(" A senha deve conter pelo menos 8 caracteres, incluindo letras e números.!")
       return
     }
 
     try {
-      
       const response = await authService.register(user)
       setSuccess("Usuário registrado com sucesso!")
-      setUser({ name: "", email: "", password: "", birthDate: "" })
+      setUser({ name: "", password: "" })
       setError("")
 
       setTimeout(() => {
         setSuccess("")
-        navigate("/homePage")
+        navigate("/users/login")
       }, 2000)
     } catch (error: any) {
       if (error.response?.status === 409) {
@@ -52,6 +59,10 @@ export const Register = () => {
     }
   }
 
+  const handleTogglePassword = () => {
+    setShowPassword((prev) => !prev)
+  }
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     handleRegister()
@@ -60,33 +71,48 @@ export const Register = () => {
   return (
     <Box
       sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        height: "100vh",
-        backgroundColor: "#f5f5f5",
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        height: '100vh',
+        padding: 2,
+        background: `linear-gradient(
+      135deg,
+      #a8e6cf,   /* verde claro */
+      #f8bbd0,   /* rosa claro */
+      #ffffff,   /* branco */
+      #fff9c4,   /* amarelo claro */
+      #ffe0b2,   /* laranja claro */
+      #bbdefb    /* azul claro */
+    )`,
+        // backgroundImage: `url(${dietImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
       }}
     >
       <Box
         component="form"
         onSubmit={handleSubmit}
         sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          width: 350,
-          padding: 3,
-          backgroundColor: "white",
-          borderRadius: 2,
-          boxShadow: 3,
+          display: 'flex',
+          flexDirection: 'column',
+          width: '100%',
+          maxWidth: 300,
+          backgroundColor: 'rgba(255,255,255,0.1)',
+          padding: 4,
+          boxShadow: theme.shadows[5],
+          backdropFilter: 'blur(20px)',
+          borderRadius: '16px',
         }}
       >
         <Typography variant="h5" textAlign="center">
-          Cadastro
+          Cadastro !
         </Typography>
 
         <TextField
-          label="Nome Completo"
+          label="Nome de usuário"
           type="text"
           name="name"
           value={user.name}
@@ -94,49 +120,71 @@ export const Register = () => {
           variant="outlined"
           fullWidth
           required
-        />
-
-
-        <TextField
-          label="Email"
-          type="email"
-          name="email"
-          value={user.email}
-          onChange={handleChange}
-          variant="outlined"
-          fullWidth
-          required
+          sx={{
+            marginBottom: 2,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '14px'
+            }
+          }}
         />
 
         <TextField
           label="Senha"
-          type="password"
+          type={showPassword ? 'text' : 'password'}
           name="password"
           value={user.password}
           onChange={handleChange}
           variant="outlined"
           fullWidth
           required
-        />
-
-        <TextField
-          label="Data de Nascimento"
-          type="date"
-          name="birthDate"
-          value={user.birthDate}
-          onChange={handleChange}
-          InputLabelProps={{ shrink: true }}
-          variant="outlined"
-          fullWidth
-          required
+          sx={{
+            marginBottom: 2,
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '14px'
+            }
+          }}
+          InputProps={{
+            endAdornment: (
+              <InputAdornment position="end">
+                <IconButton onClick={handleTogglePassword} edge="end">
+                  {showPassword ? <VisibilityOff /> : <Visibility />}
+                </IconButton>
+              </InputAdornment>
+            ),
+          }}
         />
 
         {error && <Alert severity="error">{error}</Alert>}
         {success && <Alert severity="success">{success}</Alert>}
 
-        <Button type="submit" variant="contained" color="primary" fullWidth>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{
+            marginTop: 2,
+            backgroundColor: theme.palette.primary.main,
+            color: theme.palette.primary.contrastText,
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+            },
+            borderRadius: '14px',
+          }}
+        >
           Registrar
         </Button>
+
+        <Typography variant="body2" sx={{ textAlign: 'center', marginTop: 2 }}>
+          Voltar!{' '}
+          <Link
+            component={RouterLink}
+            to="/homePage"
+            sx={{ color: theme.palette.primary.main, fontWeight: 'bold', textDecoration: 'none' }}
+          >
+            Inicio
+          </Link>
+        </Typography>
       </Box>
     </Box>
   )

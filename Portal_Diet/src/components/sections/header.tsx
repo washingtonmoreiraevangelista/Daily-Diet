@@ -26,7 +26,7 @@ export const Header = () => {
       <AppBar position="fixed"> 
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Meu App
+            Bem Nutrido
           </Typography>
           <IconButton onClick={handleMenuOpen} color="inherit">
             <Avatar>

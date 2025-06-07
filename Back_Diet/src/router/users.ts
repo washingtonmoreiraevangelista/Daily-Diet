@@ -2,7 +2,6 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { knex } from '../dataBase'
 import { randomUUID } from 'node:crypto'
-import { authenticate } from '../hook/auth'
 import bcrypt from 'bcrypt'
 export async function usersRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (request) => {
@@ -79,48 +78,18 @@ export async function usersRoutes(app: FastifyInstance) {
       return reply.status(401).send({ error: 'Credenciais inválidas' })
     }
 
-    const token = app.jwt.sign({}, { sub: user.id, expiresIn: '30m' })
+    const token = app.jwt.sign(
+      {
+        sub: user.id,
+        role: user.role,
+      },
+      { expiresIn: '7d' }
+    )
+
 
     return reply.send({ message: 'login realizado com sucesso ', token })
 
   })
 
-
-  app.get('/', { preHandler: [authenticate] }, async (_request, _reply) => {
-    const users = await knex('users').select('*')
-    return { users }
-
-  })
-
-  app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
-    const { id } = request.params as { id: string }
-
-    const user = await knex('users')
-      .select('id', 'name', 'created_at')
-      .where({ id })
-      .first()
-
-    if (!user) {
-      return reply.status(404).send({ error: 'User not found' })
-    }
-
-    return { user }
-
-  })
-
-  app.delete('/:id', { preHandler: [authenticate] }, async (request, reply) => {
-    const { id } = request.params as { id: string }
-
-    const user = await knex('users')
-      .where({ id })
-      .del()
-
-    if (!user) {
-      return reply.status(404).send({ error: 'User not found' })
-    }
-
-    return { user }
-
-  })
 
 }

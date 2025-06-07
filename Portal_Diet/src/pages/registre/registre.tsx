@@ -48,13 +48,13 @@ export const Register = () => {
 
       setTimeout(() => {
         setSuccess("")
-        navigate("/users/login")
+        navigate("/")
       }, 2000)
     } catch (error: any) {
       if (error.response?.status === 409) {
         setError("E-mail já cadastrado! Tente outro.")
       } else {
-        setError("Erro ao registrar o usuário. Tente novamente.")
+        setError("A senha deve conter pelo menos 8 caracteres, incluindo letras e números.!")
       }
     }
   }

@@ -5,6 +5,7 @@ declare module 'knex/types/tables' {
       name: string
       password: string
       session_id?: string
+      role:string,
       created_at: string
     }
     meals: {

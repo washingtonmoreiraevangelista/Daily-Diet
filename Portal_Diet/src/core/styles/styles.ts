@@ -1,4 +1,4 @@
-import { Box, BoxProps, Container, ContainerProps } from '@mui/material'
+import { Box, type BoxProps, Container, type ContainerProps } from '@mui/material'
 import { styled } from '@mui/material/styles'
 
 export const BoxWrapper = styled(Box)<BoxProps>({

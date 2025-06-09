@@ -1,9 +1,9 @@
 export interface meals {
-      id: string
+      id?: string
       name: string
       description: string
       date: string
       time: string
       is_diet: string
-      created_at: string
+      created_at?: string
     }

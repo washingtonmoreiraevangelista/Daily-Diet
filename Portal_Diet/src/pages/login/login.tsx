@@ -12,7 +12,6 @@ import {
 } from '@mui/material'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
-import dietImage from '../../assets/diet.png'
 import { authService } from '../../service/user.service'
 
 export const Login = () => {
@@ -48,121 +47,98 @@ export const Login = () => {
   }
 
   return (
+
     <Box
+      component="form"
+      onSubmit={handleSubmit}
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        padding: 2,
-        backgroundImage: `url(${dietImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        width: '100%',
+        maxWidth: 300,
+        backgroundColor: 'rgba(255,255,255,0.1)',
+        padding: 3,
+        boxShadow: theme.shadows[5],
+        backdropFilter: 'blur(20px)',
+        borderRadius: '16px',
+        margin: 'auto',
       }}
     >
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
+      <PersonOutlinedIcon
+        sx={{ fontSize: 40, alignSelf: 'center', color: theme.palette.primary.main }}
+      />
+
+      <Typography
+        variant="h4"
+        sx={{ marginBottom: 3, textAlign: 'center', color: '#222' /* ou theme.palette.text.primary */ }}
+      >
+        Bem Nutrido
+      </Typography>
+
+      {error && (
+        <Typography
+          variant="body2"
+          sx={{ color: theme.palette.error.main, textAlign: 'center', marginBottom: 2 }}
+        >
+          {error}
+        </Typography>
+      )}
+
+      <TextField
+        label="Name"
+        variant="outlined"
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          maxWidth: 300,
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          padding: 3,
-          boxShadow: theme.shadows[5],
-          backdropFilter: 'blur(20px)',
-          borderRadius: '16px',
+          marginBottom: 2,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '14px'
+          }
+        }}
+      />
+
+      <TextField
+        label="Password"
+        variant="outlined"
+        type={showPassword ? 'text' : 'password'}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        sx={{
+          marginBottom: 2,
+          '& .MuiOutlinedInput-root': {
+            borderRadius: '14px'
+          }
+        }}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton onClick={handleTogglePassword} edge="end">
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+
+      <Button
+        type="submit"
+        variant="contained"
+        sx={{
+          marginTop: 2,
+          backgroundColor: theme.palette.primary.main,
+          color: theme.palette.primary.contrastText,
+          '&:hover': {
+            backgroundColor: theme.palette.primary.dark,
+          },
+          borderRadius: '14px',
         }}
       >
-        <PersonOutlinedIcon
-          sx={{ fontSize: 40, alignSelf: 'center', color: theme.palette.primary.main }}
-        />
+        Enter
+      </Button>
 
-        <Typography
-          variant="h4"
-          sx={{ marginBottom: 3, textAlign: 'center', color: '#222' /* ou theme.palette.text.primary */ }}
-        >
-          Bem Nutrido
-        </Typography>
-
-        {error && (
-          <Typography
-            variant="body2"
-            sx={{ color: theme.palette.error.main, textAlign: 'center', marginBottom: 2 }}
-          >
-            {error}
-          </Typography>
-        )}
-
-        <TextField
-          label="Name"
-          variant="outlined"
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          required
-          sx={{
-            marginBottom: 2,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '14px'
-            }
-          }}
-        />
-
-        <TextField
-          label="Password"
-          variant="outlined"
-          type={showPassword ? 'text' : 'password'}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          sx={{
-            marginBottom: 2,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '14px'
-            }
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={handleTogglePassword} edge="end">
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{
-            marginTop: 2,
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-            },
-            borderRadius: '14px',
-          }}
-        >
-          Enter
-        </Button>
-
-        <Typography variant="body2" sx={{ textAlign: 'center', marginTop: 2 }}>
-          Não tem uma conta?{' '}
-          <Link
-            component={RouterLink}
-            to="/register"
-            sx={{ color: theme.palette.primary.main, fontWeight: 'bold', textDecoration: 'none' }}
-          >
-            Cadastre-se
-          </Link>
-        </Typography>
-      </Box>
     </Box>
   )
 }

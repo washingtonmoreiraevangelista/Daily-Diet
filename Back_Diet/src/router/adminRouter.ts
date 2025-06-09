@@ -28,7 +28,7 @@ export async function adminRouter(app: FastifyInstance) {
       const existing = await knex('users').where({ name }).first()
 
       if (existing) {
-        return reply.status(400).send({ message: 'Usuário já existe.' })
+        return reply.code(400).send({ message: 'Usuário já existe.' })
       }
 
       const hashedPassword = await bcrypt.hash(password, 10)
@@ -40,7 +40,7 @@ export async function adminRouter(app: FastifyInstance) {
         role,
       })
 
-      return reply.status(201).send({ message: 'Usuário master criado com sucesso.' })
+      return reply.code(201).send({ message: 'Usuário master criado com sucesso.' })
     }
   )
 
@@ -57,7 +57,7 @@ export async function adminRouter(app: FastifyInstance) {
       .first()
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return reply.status(401).send({ error: 'Credenciais inválidas' })
+      return reply.code(401).send({ error: 'Credenciais inválidas' })
     }
 
     const token = app.jwt.sign(
@@ -79,10 +79,10 @@ export async function adminRouter(app: FastifyInstance) {
 
 
     if (!users) {
-      return reply.status(404).send({ error: 'User not found' })
+      return reply.code(404).send({ error: 'User not found' })
     }
 
-    return reply.status(200).send({ users })
+    return reply.code(200).send({ users })
 
   })
 
@@ -95,7 +95,7 @@ export async function adminRouter(app: FastifyInstance) {
       .first()
 
     if (!user) {
-      return reply.status(404).send({ error: 'User not found' })
+      return reply.code(404).send({ error: 'User not found' })
     }
 
     return { user }
@@ -110,7 +110,7 @@ export async function adminRouter(app: FastifyInstance) {
       .del()
 
     if (!user) {
-      return reply.status(404).send({ error: 'User not found' })
+      return reply.code(404).send({ error: 'User not found' })
     }
 
     return { user }

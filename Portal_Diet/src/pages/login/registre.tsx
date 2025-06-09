@@ -5,7 +5,6 @@ import { useNavigate, Link as RouterLink } from 'react-router'
 import { authService } from '../../service/user.service'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { theme } from '../../core/styles/base'
-import dietImage from '../../assets/diet.png'
 
 
 export const Register = () => {
@@ -35,26 +34,31 @@ export const Register = () => {
       return
     }
 
-    if (user.password.length > 8) {
-      setError(" A senha deve conter pelo menos 8 caracteres, incluindo letras e números.!")
+    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(user.password)) {
+      setError("A senha deve conter ao menos 8 caracteres, incluindo letras e números.")
       return
     }
 
+
+
     try {
       const response = await authService.register(user)
+      const token = response.token
+      localStorage.setItem('token', token)
+
       setSuccess("Usuário registrado com sucesso!")
       setUser({ name: "", password: "" })
       setError("")
 
       setTimeout(() => {
         setSuccess("")
-        navigate("/")
+        navigate('/homepage')
       }, 2000)
     } catch (error: any) {
-      if (error.response?.status === 409) {
-        setError("E-mail já cadastrado! Tente outro.")
+      if (error.response?.status === 401 || error.response?.status === 409) {
+        setError("Usuário já existe!")
       } else {
-        setError("A senha deve conter pelo menos 8 caracteres, incluindo letras e números.!")
+        setError("Erro ao registrar usuário!")
       }
     }
   }
@@ -174,17 +178,6 @@ export const Register = () => {
         >
           Registrar
         </Button>
-
-        <Typography variant="body2" sx={{ textAlign: 'center', marginTop: 2 }}>
-          Voltar!{' '}
-          <Link
-            component={RouterLink}
-            to="/homePage"
-            sx={{ color: theme.palette.primary.main, fontWeight: 'bold', textDecoration: 'none' }}
-          >
-            Inicio
-          </Link>
-        </Typography>
       </Box>
     </Box>
   )

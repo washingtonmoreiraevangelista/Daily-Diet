@@ -17,13 +17,15 @@ export async function usersRoutes(app: FastifyInstance) {
 
     const { name, password } = createUserBodySchema.parse(request.body)
 
-    const existingUser = await knex('users').where('name', name).first()
+    const existingUser = await knex('users')
+      .whereRaw('LOWER(name) = ?', name.toLowerCase())
+      .first()
 
     if (existingUser) {
-      return reply.status(400).send({ error: 'User already exists' })
+      return reply.code(400).send({ error: 'User already exists' })
     }
 
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
 
     if (!passwordRegex.test(password)) {
       throw new Error("A senha deve conter pelo menos 8 caracteres, incluindo letras e números.")
@@ -41,7 +43,7 @@ export async function usersRoutes(app: FastifyInstance) {
 
 
     if (!name || !password) {
-      return reply.status(400).send({ error: 'Name and password are required' })
+      return reply.code(400).send({ error: 'Name and password are required' })
     }
 
     const userId = randomUUID()
@@ -56,7 +58,7 @@ export async function usersRoutes(app: FastifyInstance) {
 
     const token = app.jwt.sign({}, { sub: userId, expiresIn: '30m' })
 
-    return reply.status(201).send({ message: 'Usuário criado com sucesso!', token })
+    return reply.code(201).send({ message: 'Usuário criado com sucesso!', token })
 
 
   })
@@ -75,7 +77,7 @@ export async function usersRoutes(app: FastifyInstance) {
       .first()
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return reply.status(401).send({ error: 'Credenciais inválidas' })
+      return reply.code(401).send({ error: 'Credenciais inválidas' })
     }
 
     const token = app.jwt.sign(

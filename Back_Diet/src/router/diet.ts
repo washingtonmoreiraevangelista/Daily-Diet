@@ -33,7 +33,7 @@ export const registerDiet = async (app: FastifyInstance) => {
       user_id: userId,
     })
 
-    return reply.status(201).send('Dieta cadastrada com sucesso!')
+    return reply.code(201).send('Dieta cadastrada com sucesso!')
 
   })
 
@@ -42,10 +42,10 @@ export const registerDiet = async (app: FastifyInstance) => {
     const diet = await knex('meals').where({ user_id: userId }).select('*')
 
     if (diet.length === 0) {
-      return reply.status(400).send({ mesage: 'Nenhuma dieta registrada!' })
+      return reply.code(400).send({ mesage: 'Nenhuma dieta registrada!' })
     }
 
-    return reply.status(200).send({ diet })
+    return reply.code(200).send({ diet })
 
   })
 
@@ -54,7 +54,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     const { id } = request.params as { id: string }
 
     if (!id) {
-      return reply.status(400).send({ mesage: 'Id não encontrado!' })
+      return reply.code(400).send({ mesage: 'Id não encontrado!' })
     }
 
     const diet = await knex('meals')
@@ -79,7 +79,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     }
 
     if (id) {
-      return reply.status(400).send({ mesage: 'Id não encontrado!' })
+      return reply.code(400).send({ mesage: 'Id não encontrado!' })
     }
 
     const diet = await knex('meals')
@@ -92,7 +92,7 @@ export const registerDiet = async (app: FastifyInstance) => {
         is_diet,
       })
 
-    return reply.status(200).send({ message: 'Dieta atualizada com sucesso!' })
+    return reply.code(200).send({ message: 'Dieta atualizada com sucesso!' })
 
   })
 
@@ -106,10 +106,10 @@ export const registerDiet = async (app: FastifyInstance) => {
       .del()
 
     if (!diet) {
-      return reply.status(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
+      return reply.code(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
     }
 
-    return reply.status(200).send({ message: 'Dieta deletada com sucesso!' })
+    return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
   })
 
   app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {

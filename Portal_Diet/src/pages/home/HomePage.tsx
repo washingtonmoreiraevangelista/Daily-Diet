@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   Box,
   Button,
@@ -7,19 +7,16 @@ import {
   DialogActions,
   Typography,
   Container,
-  Card,
-  CardContent,
-  CardHeader,
-  CardActions,
 } from '@mui/material'
 import type { Meals } from '../../@types/diet'
 import { FloatingAddButton } from '../../core/layout/floatingAddButton'
 import { MealForm } from '../../components/forms/mealForms'
 import { MealCard } from '../../components/cardsPage/mealCards'
-
+import { mealsService } from '../../service/meals.service'
 export const HomePage = () => {
   const [meals, setMeals] = useState<Meals[]>([])
   const [modalOpen, setModalOpen] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [newMeal, setNewMeal] = useState<Meals>({
     name: '',
     description: '',
@@ -28,17 +25,39 @@ export const HomePage = () => {
     is_diet: false,
   })
 
-  const handleChange = (field: keyof Meals, value: string | boolean) => {
-    setNewMeal(prev => ({ ...prev, [field]: value }))
+  useEffect(() => {
+    const fetchMeals = async () => {
+      try {
+        const mealsFromApi = await mealsService.getAllMeals()
+        setMeals(mealsFromApi)
+      } catch (error) {
+        alert('Erro ao buscar as refeições.')
+        console.error(error)
+      }
+    }
+    fetchMeals()
+  }, [])
+
+  const handleAddMeal = async () => {
+    if (isSubmitting) return
+
+    setIsSubmitting(true)
+
+    try {
+      const response = await mealsService.createDiet(newMeal)
+      setMeals((prev) => [...(prev || []), response])
+
+      resetFormAndClose()
+    } catch (error) {
+      alert('Erro ao adicionar a refeição, tente novamente.')
+      console.error(error)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
-  const handleAddMeal = () => {
-    if (!newMeal.name) {
-      alert('Nome da refeição obrigatório')
-      return
-    }
-    setMeals(prev => [...prev, { ...newMeal }])
-    resetFormAndClose()
+  const handleChange = (field: keyof Meals, value: string | boolean) => {
+    setNewMeal(prev => ({ ...prev, [field]: value }))
   }
 
   const resetFormAndClose = () => {
@@ -83,7 +102,7 @@ export const HomePage = () => {
             Dieta Diária !
           </Typography>
           <Typography variant="h6" color="text.secondary" mb={6}>
-            Siga sua nutrição diária de forma inteligente 
+            Siga sua nutrição diária de forma inteligente
           </Typography>
 
           <FloatingAddButton onClick={() => setModalOpen(true)} />
@@ -99,21 +118,21 @@ export const HomePage = () => {
           width="100%"
           px={2}
         >
-          {meals.length === 0 ? (
+          {!Array.isArray(meals) || meals.length === 0 ? (
             <Typography variant="body1" color="text.secondary">
               Nenhuma refeição adicionada ainda.
             </Typography>
           ) : (
             meals.map((meal, idx) => (
               <Box
-                key={idx}
+                key={meal.id ?? idx} // preferir id único
                 sx={{
                   flex: {
-                    xs: '1 1 100%',   
-                    sm: '1 1 48%',    
-                    md: '1 1 31%',    
+                    xs: '1 1 100%',
+                    sm: '1 1 48%',
+                    md: '1 1 31%',
                   },
-                  maxWidth: '360px',  
+                  maxWidth: '360px',
                 }}
               >
                 <MealCard meal={meal} />

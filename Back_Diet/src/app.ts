@@ -22,11 +22,12 @@ app.register(usersRoutes, {
   prefix: '/users',
 })
 
+app.register(registerDiet, {
+  prefix: '/meals',
+})
+
 app.register(adminRouter, {
   prefix: '/admin'
 })
 
-app.register(registerDiet, {
-  prefix: '/diet',
-})
 

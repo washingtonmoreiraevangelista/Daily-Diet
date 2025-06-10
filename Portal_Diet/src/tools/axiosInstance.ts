@@ -13,19 +13,24 @@ export async function environment(
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' = 'GET',
   payload?: any
 ): Promise<any> {
-
   try {
-    
+    const token = localStorage.getItem('token')
+
     const config: any = {
       url: route,
       method: method,
+      headers: {}, 
     }
-   
+
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
+
     if (method === 'GET' && payload) {
-      config.params = payload 
+      config.params = payload
     } else {
       config.data = payload
-        }
+    }
 
     const response = await connectAxios.request(config)
     return response.data

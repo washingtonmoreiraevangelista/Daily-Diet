@@ -85,7 +85,7 @@ export async function usersRoutes(app: FastifyInstance) {
         sub: user.id,
         role: user.role,
       },
-      { expiresIn: '7d' }
+      { expiresIn: '30m' }
     )
 
 

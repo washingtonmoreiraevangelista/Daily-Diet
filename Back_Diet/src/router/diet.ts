@@ -9,20 +9,20 @@ export const registerDiet = async (app: FastifyInstance) => {
     console.log(`[${request.method}] ${request.url}`)
   })
 
-  app.post('/', { preHandler: [authenticate] }, async (request, reply) => {
+  app.post('/register', { preHandler: [authenticate] }, async (request, reply) => {
     const createDietBodySchema = z.object({
       name: z.string(),
       description: z.string(),
       date: z.string(),
       time: z.string(),
-      is_diet: z.enum(['sim', 'não']),
+      is_diet: z.boolean(),
     })
 
     const { name, description, date, time, is_diet } = createDietBodySchema.parse(request.body)
 
-    const userId = (request.user as { sub: string }).sub
+    const userId = request.user.sub
 
-    await knex('meals').insert({
+    const meal = {
       id: randomUUID(),
       name,
       description,
@@ -30,16 +30,17 @@ export const registerDiet = async (app: FastifyInstance) => {
       time,
       is_diet,
       created_at: new Date().toISOString(),
-      user_id: userId,
-    })
+      userId: userId,
+    }
 
-    return reply.code(201).send('Dieta cadastrada com sucesso!')
+    await knex('meals').insert(meal)
 
+return reply.code(201).send({ message: 'Dieta cadastrada com sucesso!',diet: meal })
   })
 
-  app.get('/', { preHandler: [authenticate] }, async (request, reply) => {
+  app.get('/all', { preHandler: [authenticate] }, async (request, reply) => {
     const userId = (request.user as { sub: string }).sub
-    const diet = await knex('meals').where({ user_id: userId }).select('*')
+    const diet = await knex('meals').where({ userId: userId }).select('*')
 
     if (diet.length === 0) {
       return reply.code(400).send({ mesage: 'Nenhuma dieta registrada!' })
@@ -49,106 +50,106 @@ export const registerDiet = async (app: FastifyInstance) => {
 
   })
 
-  app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
-    const userId = (request.user as { sub: string }).sub
-    const { id } = request.params as { id: string }
+  // app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
+  //   const userId = (request.user as { sub: string }).sub
+  //   const { id } = request.params as { id: string }
 
-    if (!id) {
-      return reply.code(400).send({ mesage: 'Id não encontrado!' })
-    }
+  //   if (!id) {
+  //     return reply.code(400).send({ mesage: 'Id não encontrado!' })
+  //   }
 
-    const diet = await knex('meals')
-      .where({ id, user_id: userId })
-      .first()
+  //   const diet = await knex('meals')
+  //     .where({ id, userId: userId })
+  //     .first()
 
-    return reply.send({ diet })
+  //   return reply.send({ diet })
 
-  })
-
-
-  app.put('/:id', { preHandler: [authenticate] }, async (request, reply) => {
-    const userId = (request.user as { sub: string }).sub
-    const { id } = request.params as { id: string }
-
-    const { name, description, date, time, is_diet } = request.body as {
-      name: string,
-      description: string,
-      date: string,
-      time: string,
-      is_diet: string,
-    }
-
-    if (id) {
-      return reply.code(400).send({ mesage: 'Id não encontrado!' })
-    }
-
-    const diet = await knex('meals')
-      .where({ id, user_id: userId })
-      .update({
-        name,
-        description,
-        date,
-        time,
-        is_diet,
-      })
-
-    return reply.code(200).send({ message: 'Dieta atualizada com sucesso!' })
-
-  })
+  // })
 
 
-  app.delete("/:id", { preHandler: [authenticate] }, async (request, reply) => {
-    const userId = (request.user as { sub: string }).sub
-    const { id } = request.params as { id: string }
+  // app.put('/:id', { preHandler: [authenticate] }, async (request, reply) => {
+  //   const userId = (request.user as { sub: string }).sub
+  //   const { id } = request.params as { id: string }
 
-    const diet = await knex('meals')
-      .where({ id, user_id: userId })
-      .del()
+  //   const { name, description, date, time, is_diet } = request.body as {
+  //     name: string,
+  //     description: string,
+  //     date: string,
+  //     time: string,
+  //     is_diet: string,
+  //   }
 
-    if (!diet) {
-      return reply.code(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
-    }
+  //   if (id) {
+  //     return reply.code(400).send({ mesage: 'Id não encontrado!' })
+  //   }
 
-    return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
-  })
+  //   const diet = await knex('meals')
+  //     .where({ id, userId: userId })
+  //     .update({
+  //       name,
+  //       description,
+  //       date,
+  //       time,
+  //       is_diet,
+  //     })
 
-  app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {
-    const userId = (request.user as { sub: string }).sub
+  //   return reply.code(200).send({ message: 'Dieta atualizada com sucesso!' })
+
+  // })
 
 
-    const allDiet = await knex('meals')
-      .where({ user_id: userId })
-      .select('*')
-      .orderBy('date', 'asc')
+  // app.delete("/:id", { preHandler: [authenticate] }, async (request, reply) => {
+  //   const userId = (request.user as { sub: string }).sub
+  //   const { id } = request.params as { id: string }
 
-    const totalDiet = allDiet.length
-    const withinDiet = allDiet.filter((meal) => meal.is_diet === 'sim').length
-    const outDiet = totalDiet - withinDiet
+  //   const diet = await knex('meals')
+  //     .where({ id, userId: userId })
+  //     .del()
 
-    let bestSequence = 0
-    let currentSequence = 0
+  //   if (!diet) {
+  //     return reply.code(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
+  //   }
 
-    //for..in
-    for (const meal of allDiet) {
-      // Verifica se a refeição está dentro da dieta
-      if (meal.is_diet === 'sim') {
-        currentSequence++
-        // Atualiza a melhor sequência
-        bestSequence = Math.max(bestSequence, currentSequence)
-      } else {
-        // Reinicia a sequência se a refeição está fora da dieta
-        currentSequence = 0
-      }
-    }
+  //   return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
+  // })
 
-    return reply.send({
-      totalMeals: totalDiet,
-      withinDiet,
-      outDiet,
-      bestDietSequence: bestSequence,
-    })
+  // app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {
+  //   const userId = (request.user as { sub: string }).sub
 
-  })
+
+  //   const allDiet = await knex('meals')
+  //     .where({ userId: userId })
+  //     .select('*')
+  //     .orderBy('date', 'asc')
+
+  //   const totalDiet = allDiet.length
+  //   const withinDiet = allDiet.filter((meal) => meal.is_diet === 'sim').length
+  //   const outDiet = totalDiet - withinDiet
+
+  //   let bestSequence = 0
+  //   let currentSequence = 0
+
+  //   //for..in
+  //   for (const meal of allDiet) {
+  //     // Verifica se a refeição está dentro da dieta
+  //     if (meal.is_diet === 'sim') {
+  //       currentSequence++
+  //       // Atualiza a melhor sequência
+  //       bestSequence = Math.max(bestSequence, currentSequence)
+  //     } else {
+  //       // Reinicia a sequência se a refeição está fora da dieta
+  //       currentSequence = 0
+  //     }
+  //   }
+
+  //   return reply.send({
+  //     totalMeals: totalDiet,
+  //     withinDiet,
+  //     outDiet,
+  //     bestDietSequence: bestSequence,
+  //   })
+
+  // })
 
 
 

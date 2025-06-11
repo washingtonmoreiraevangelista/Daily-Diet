@@ -6,7 +6,7 @@ declare module 'knex/types/tables' {
       password: string
       session_id?: string
       role:string,
-      created_at: string
+      created_at: Date
     }
     meals: {
       id: string
@@ -15,8 +15,8 @@ declare module 'knex/types/tables' {
       description: string
       date: string
       time: string
-      is_diet: boolean
-      created_at: string
+      isDiet: string
+      created_at: Date
     }
   }
 }

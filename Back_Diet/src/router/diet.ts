@@ -15,12 +15,12 @@ export const registerDiet = async (app: FastifyInstance) => {
       description: z.string(),
       date: z.string(),
       time: z.string(),
-      is_diet: z.boolean(),
+      isDiet: z.string(),
     })
 
-    const { name, description, date, time, is_diet } = createDietBodySchema.parse(request.body)
+    const { name, description, date, time, isDiet, } = createDietBodySchema.parse(request.body)
 
-    const userId = request.user.sub
+    const userId = (request.user as { sub: string }).sub
 
     const meal = {
       id: randomUUID(),
@@ -28,25 +28,24 @@ export const registerDiet = async (app: FastifyInstance) => {
       description,
       date,
       time,
-      is_diet,
-      created_at: new Date().toISOString(),
+      isDiet,
       userId: userId,
     }
 
     await knex('meals').insert(meal)
 
-return reply.code(201).send({ message: 'Dieta cadastrada com sucesso!',diet: meal })
+    return reply.code(201).send('Dieta cadastrada com sucesso!')
   })
 
   app.get('/all', { preHandler: [authenticate] }, async (request, reply) => {
     const userId = (request.user as { sub: string }).sub
-    const diet = await knex('meals').where({ userId: userId }).select('*')
+    const diet = await knex('meals').where({ userId }).select()
 
     if (diet.length === 0) {
       return reply.code(400).send({ mesage: 'Nenhuma dieta registrada!' })
     }
 
-    return reply.code(200).send({ diet })
+    return reply.code(200).send(diet)
 
   })
 

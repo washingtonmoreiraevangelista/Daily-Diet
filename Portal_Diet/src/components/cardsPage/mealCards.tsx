@@ -34,8 +34,8 @@ export const MealCard = ({ meal }: { meal: Meals }) => {
           </Box>
 
           <Chip
-            label={meal.is_diet ? 'Dentro da dieta' : 'Fora da dieta'}
-            color={meal.is_diet ? 'success' : 'error'}
+            label={meal.isDiet ? 'Dentro da dieta' : 'Fora da dieta'}
+            color={meal.isDiet ? 'success' : 'error'}
             size="small"
           />
         </Box>

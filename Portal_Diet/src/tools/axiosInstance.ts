@@ -19,12 +19,12 @@ export async function environment(
     const config: any = {
       url: route,
       method: method,
-      headers: {}, 
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }, 
     }
 
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+  
 
     if (method === 'GET' && payload) {
       config.params = payload

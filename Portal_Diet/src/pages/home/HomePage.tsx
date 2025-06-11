@@ -14,51 +14,59 @@ import { MealForm } from '../../components/forms/mealForms'
 import { MealCard } from '../../components/cardsPage/mealCards'
 import { mealsService } from '../../service/meals.service'
 export const HomePage = () => {
-  const [meals, setMeals] = useState<Meals[]>([])
+  const [meals, setMeals] = useState<Meals[]>()
   const [modalOpen, setModalOpen] = useState(false)
-  const [isSubmitting, setIsSubmitting] = useState(false)
   const [newMeal, setNewMeal] = useState<Meals>({
     name: '',
     description: '',
     date: '',
     time: '',
-    is_diet: false,
+    isDiet: 'não',
+    created_at: new Date(),
   })
 
-  useEffect(() => {
-    const fetchMeals = async () => {
-      try {
-        const mealsFromApi = await mealsService.getAllMeals()
-        setMeals(mealsFromApi)
-      } catch (error) {
-        alert('Erro ao buscar as refeições.')
-        console.error(error)
-      }
+
+
+  const creatMeal = async () => {
+
+    if (!newMeal.name || !newMeal.date || !newMeal.time) {
+      alert("Preencha todos os campos obrigatórios!")
+      return
     }
+
+    try {
+      await mealsService.createDiet(newMeal)
+      await fetchMeals()
+      resetFormAndClose()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  const fetchMeals = async () => {
+    try {
+      const response = await mealsService.getAllMeals()
+      setMeals(response)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  useEffect(() => {
     fetchMeals()
   }, [])
 
-  const handleAddMeal = async () => {
-    if (isSubmitting) return
-
-    setIsSubmitting(true)
-
-    try {
-      const response = await mealsService.createDiet(newMeal)
-      setMeals((prev) => [...(prev || []), response])
-
-      resetFormAndClose()
-    } catch (error) {
-      alert('Erro ao adicionar a refeição, tente novamente.')
-      console.error(error)
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   const handleChange = (field: keyof Meals, value: string | boolean) => {
-    setNewMeal(prev => ({ ...prev, [field]: value }))
+    const convertedValue =
+      field === 'isDiet'
+        ? value === true
+          ? 'sim'
+          : 'não'
+        : value
+
+    setNewMeal((prev) => ({ ...prev, [field]: convertedValue }))
   }
+
 
   const resetFormAndClose = () => {
     setModalOpen(false)
@@ -67,7 +75,8 @@ export const HomePage = () => {
       description: '',
       date: '',
       time: '',
-      is_diet: false,
+      isDiet: 'não',
+      created_at: new Date(),
     })
   }
 
@@ -86,7 +95,6 @@ export const HomePage = () => {
         }}
       >
         <Container maxWidth="md" sx={{ textAlign: 'center', pt: 6 }}>
-          {/* Header */}
           <Typography
             variant="h3"
             component="h1"
@@ -108,7 +116,6 @@ export const HomePage = () => {
           <FloatingAddButton onClick={() => setModalOpen(true)} />
         </Container>
 
-        {/* Cards Centralizados */}
         <Box
           mt={3}
           display="flex"
@@ -118,14 +125,14 @@ export const HomePage = () => {
           width="100%"
           px={2}
         >
-          {!Array.isArray(meals) || meals.length === 0 ? (
+          {meals?.length === 0 ? (
             <Typography variant="body1" color="text.secondary">
               Nenhuma refeição adicionada ainda.
             </Typography>
           ) : (
-            meals.map((meal, idx) => (
+            meals?.map((meal) => (
               <Box
-                key={meal.id ?? idx} // preferir id único
+                key={meal.id}
                 sx={{
                   flex: {
                     xs: '1 1 100%',
@@ -149,7 +156,7 @@ export const HomePage = () => {
           </DialogContent>
           <DialogActions>
             <Button onClick={resetFormAndClose}>Cancelar</Button>
-            <Button variant="contained" onClick={handleAddMeal}>
+            <Button variant="contained" onClick={creatMeal}>
               Adicionar
             </Button>
           </DialogActions>

@@ -20,6 +20,17 @@ export const mealsService = {
       console.error('Erro ao buscar a dieta:', error)
       throw new Error('Erro ao buscar a dieta do usuário')
     }
+  },
+
+  // não atualiza
+  
+  async updateDiet(id: string, data: Omit<Meals, 'id'>) {
+    try {
+      const response = await environment(`/meals/update/${id}`, 'PUT', data)
+      return response
+    } catch (error) {
+      throw new Error('Erro ao atualizar a dieta')
+    }
   }
 
 }

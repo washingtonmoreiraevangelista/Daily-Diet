@@ -1,8 +1,14 @@
-import { Card, CardContent, Typography, Box, Chip } from '@mui/material'
+import { Card, CardContent, Typography, Box, Chip, Button } from '@mui/material'
 import { Coffee, Sun, Moon, Cookie } from 'lucide-react'
 import type { Meals } from '../../@types/diet'
+import UpdateIcon from '@mui/icons-material/Update'
 
-export const MealCard = ({ meal }: { meal: Meals }) => {
+type MealCardProps = {
+  meal: Meals
+  onEdit: () => void
+}
+
+export const MealCard = ({ meal, onEdit }: MealCardProps) => {
   const mealIcons = {
     'Café da Manhã': Coffee,
     'Almoço': Sun,
@@ -10,7 +16,6 @@ export const MealCard = ({ meal }: { meal: Meals }) => {
     'Lanche': Cookie,
     'Jantar': Moon,
   }
-
   const IconComponent = mealIcons[meal.name as keyof typeof mealIcons] || Coffee
 
   return (
@@ -32,12 +37,13 @@ export const MealCard = ({ meal }: { meal: Meals }) => {
               {meal.name}
             </Typography>
           </Box>
-
-          <Chip
-            label={meal.isDiet ? 'Dentro da dieta' : 'Fora da dieta'}
-            color={meal.isDiet ? 'success' : 'error'}
-            size="small"
-          />
+          <Box display="flex" alignItems="center" gap={1}>
+            <Chip
+              label={meal.isDiet === 'sim' ? 'Dentro da dieta' : 'Fora da dieta'}
+              color={meal.isDiet === 'sim' ? 'success' : 'error'}
+              size="small"
+            />
+          </Box>
         </Box>
 
         <Typography variant="body2" color="text.secondary" mb={1}>
@@ -48,6 +54,9 @@ export const MealCard = ({ meal }: { meal: Meals }) => {
           {meal.date} às {meal.time}
         </Typography>
       </CardContent>
+      <Button variant="outlined" size="small" onClick={onEdit}>
+        <UpdateIcon />
+      </Button>
     </Card>
   )
 }

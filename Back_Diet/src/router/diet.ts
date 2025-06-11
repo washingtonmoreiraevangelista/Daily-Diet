@@ -9,6 +9,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     console.log(`[${request.method}] ${request.url}`)
   })
 
+
   app.post('/register', { preHandler: [authenticate] }, async (request, reply) => {
     const createDietBodySchema = z.object({
       name: z.string(),
@@ -52,6 +53,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     const meals = await knex('meals')
       .where({ userId })
       .limit(limitNumber)
+      .orderBy('created_at', 'desc')
       .offset(offset)
       .select()
 
@@ -85,35 +87,35 @@ export const registerDiet = async (app: FastifyInstance) => {
   // })
 
 
-  // app.put('/:id', { preHandler: [authenticate] }, async (request, reply) => {
-  //   const userId = (request.user as { sub: string }).sub
-  //   const { id } = request.params as { id: string }
+  app.put('/update/:id', { preHandler: [authenticate] }, async (request, reply) => {
+    const userId = (request.user as { sub: string }).sub
+    const { id } = request.params as { id: string }
 
-  //   const { name, description, date, time, is_diet } = request.body as {
-  //     name: string,
-  //     description: string,
-  //     date: string,
-  //     time: string,
-  //     is_diet: string,
-  //   }
+    const { name, description, date, time, isDiet } = request.body as {
+      name: string,
+      description: string,
+      date: string,
+      time: string,
+      isDiet: string,
+    }
 
-  //   if (id) {
-  //     return reply.code(400).send({ mesage: 'Id não encontrado!' })
-  //   }
+    if (!id) {
+      return reply.code(400).send({ mesage: 'Id não encontrado!' })
+    }
 
-  //   const diet = await knex('meals')
-  //     .where({ id, userId: userId })
-  //     .update({
-  //       name,
-  //       description,
-  //       date,
-  //       time,
-  //       is_diet,
-  //     })
+    await knex('meals')
+      .where({ id, userId })
+      .update({
+        name,
+        description,
+        date,
+        time,
+        isDiet,
+      })
 
-  //   return reply.code(200).send({ message: 'Dieta atualizada com sucesso!' })
+    return reply.code(200).send({ message: 'Dieta atualizada com sucesso!' })
 
-  // })
+  })
 
 
   // app.delete("/:id", { preHandler: [authenticate] }, async (request, reply) => {

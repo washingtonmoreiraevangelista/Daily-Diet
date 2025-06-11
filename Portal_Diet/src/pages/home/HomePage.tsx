@@ -25,6 +25,8 @@ export const HomePage = () => {
     isDiet: 'não',
     created_at: new Date(),
   })
+  const [editModalOpen, setEditModalOpen] = useState(false)
+  const [mealToEdit, setMealToEdit] = useState<Meals | null>(null)
 
   const [page, setPage] = useState(1)
   const [limit] = useState(7)
@@ -47,6 +49,19 @@ export const HomePage = () => {
     }
   }
 
+  const handleUpdateMeal = async (userData: Meals) => {
+    try {
+      const { id, ...updatedMeal } = userData
+      await mealsService.updateDiet(id, updatedMeal)
+      await fetchMeals()
+      closeEditModal()
+    } catch (error) {
+      console.error('Erro ao atualizar a refeição:', error)
+    }
+  }
+
+
+
   const fetchMeals = async () => {
     try {
       const response = await mealsService.getAllMeals(page, limit)
@@ -60,6 +75,7 @@ export const HomePage = () => {
   useEffect(() => {
     fetchMeals()
   }, [page])
+
 
   const handleChange = (field: keyof Meals, value: string | boolean) => {
     const convertedValue =
@@ -83,6 +99,16 @@ export const HomePage = () => {
       isDiet: '',
       created_at: new Date(),
     })
+  }
+
+  const openEditModal = (meal: Meals) => {
+    setMealToEdit(meal)
+    setEditModalOpen(true)
+  }
+
+  const closeEditModal = () => {
+    setEditModalOpen(false)
+    setMealToEdit(null)
   }
 
   return (
@@ -147,27 +173,51 @@ export const HomePage = () => {
                   maxWidth: '360px',
                 }}
               >
-                <MealCard meal={meal} />
+                <MealCard
+                  meal={meal}
+                  onEdit={() => openEditModal(meal)}
+                />
               </Box>
             ))
           )}
+
+          <Dialog open={editModalOpen} onClose={closeEditModal}>
+            <DialogContent>
+              {mealToEdit && (
+                <MealForm
+                  newMeal={mealToEdit}
+                  onChange={(field, value) =>
+                    setMealToEdit(prev => prev ? { ...prev, [field]: value } : null)
+                  }
+                />
+              )}
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={closeEditModal}>Cancelar</Button>
+              <Button variant="contained" onClick={() => mealToEdit && handleUpdateMeal(mealToEdit)}>
+                Salvar
+              </Button>
+            </DialogActions>
+          </Dialog>
+
         </Box>
 
-        <Box mt={4} display="flex" justifyContent="center">
-          <Pagination
-            count={Math.ceil(total / limit)}
-            page={page}
-            onChange={(_, value) => setPage(value)}
-            color="primary"
-          />
-        </Box>
+        {total > limit && (
+          <Box mt={4} display="flex" justifyContent="center">
+            <Pagination
+              count={Math.ceil(total / limit)}
+              page={page}
+              onChange={(_, value) => setPage(value)}
+              color="primary"
+            />
+          </Box>
+        )}
 
-        {/* <Typography sx={{ alignSelf: 'center' }}>Página {page} de {Math.ceil(total / limit)}</Typography> */}
-
-        {/* Modal de Nova Refeição */}
         <Dialog open={modalOpen} onClose={resetFormAndClose} fullWidth maxWidth="sm">
           <DialogContent>
-            <MealForm newMeal={newMeal} onChange={handleChange} />
+            <MealForm
+              newMeal={newMeal}
+              onChange={handleChange} />
           </DialogContent>
           <DialogActions>
             <Button onClick={resetFormAndClose}>Cancelar</Button>

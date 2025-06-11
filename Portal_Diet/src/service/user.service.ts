@@ -3,7 +3,7 @@ import { environment } from '../tools/axiosInstance'
 export const authService = {
   
   // Registrar um novo usuário
-  async register(data: any) {
+  async register(data: IUser) {
     try {
       const response = await environment('/users/register', 'POST', data)
       return response
@@ -13,7 +13,7 @@ export const authService = {
   },
 
   // Login de usuário
-  async login(data: any) {
+  async login(data: IUser) {
     try {
       const response = await environment('/users/login', 'POST', data)
       return response

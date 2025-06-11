@@ -3,64 +3,50 @@ import { z } from 'zod'
 import { knex } from '../dataBase'
 import { randomUUID } from 'node:crypto'
 import bcrypt from 'bcrypt'
+import { authorizeAdmin } from '../hook/auth'
 export async function usersRoutes(app: FastifyInstance) {
   app.addHook('preHandler', async (request) => {
     console.log(`[${request.method}] ${request.url}`)
   })
 
-
   app.post('/register', async (request, reply) => {
-    const createUserBodySchema = z.object({
+    const createUserSchema = z.object({
       name: z.string(),
       password: z.string(),
+      role: z.enum(['Admin', 'user']).default('user'),
     })
 
-    const { name, password } = createUserBodySchema.parse(request.body)
+    const { name, password, role } = createUserSchema.parse(request.body)
 
     const existingUser = await knex('users')
-      .whereRaw('LOWER(name) = ?', name.toLowerCase())
+      .whereRaw('LOWER(REPLACE(name, \' \', \'\')) = ?', name.toLowerCase().replace(/\s/g, ''))
       .first()
 
     if (existingUser) {
-      return reply.code(400).send({ error: 'User already exists' })
+      return reply.code(400).send({ message: 'Usuário já existe.' })
     }
 
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
-
     if (!passwordRegex.test(password)) {
-      throw new Error("A senha deve conter pelo menos 8 caracteres, incluindo letras e números.")
+      return reply.code(400).send({
+        error: 'A senha deve conter pelo menos 8 caracteres, incluindo letras e números.',
+      })
     }
 
-    // Removir a função session id pelo jwt
-
-    // const sessionId = randomUUID()
-
-    // reply.cookie('sessionId', sessionId, {
-    //   path: '/',
-    //   maxAge: 1000 * 60 * 60 * 24 * 7,
-    //   httpOnly: true,
-    // })
-
-
-    if (!name || !password) {
-      return reply.code(400).send({ error: 'Name and password are required' })
-    }
-
-    const userId = randomUUID()
     const hashedPassword = await bcrypt.hash(password, 8)
+    const userId = randomUUID()
 
     await knex('users').insert({
       id: userId,
       name,
       password: hashedPassword,
-      created_at: new Date().toISOString()
+      role,
+      created_at: new Date().toISOString().split('T')[0],
     })
 
-    const token = app.jwt.sign({}, { sub: userId, expiresIn: '30m' })
+    const token = app.jwt.sign({}, { sub: userId, expiresIn: '1d' })
 
     return reply.code(201).send({ message: 'Usuário criado com sucesso!', token })
-
-
   })
 
 
@@ -73,7 +59,7 @@ export async function usersRoutes(app: FastifyInstance) {
     const { name, password } = loginBodySchema.parse(request.body)
 
     const user = await knex('users')
-      .where({ name })
+      .whereRaw('LOWER(REPLACE(name, \' \', \'\')) = ?', name.toLowerCase().replace(/\s/g, ''))
       .first()
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -88,8 +74,46 @@ export async function usersRoutes(app: FastifyInstance) {
       { expiresIn: '1d' }
     )
 
-
     return reply.send({ message: 'login realizado com sucesso ', token })
+  })
+
+  app.get('/all', { preHandler: [authorizeAdmin] }, async (_request, reply) => {
+    const users = await knex('users').select('*')
+
+    if (!users) {
+      return reply.code(404).send({ error: 'User not found' })
+    }
+
+    return reply.code(200).send({ users })
+  })
+
+  app.get('/:id', { preHandler: [authorizeAdmin] }, async (request, reply) => {
+    const { id } = request.params as { id: string }
+
+    const user = await knex('users')
+      .select('*')
+      .where({ id })
+      .first()
+
+    if (!user) {
+      return reply.code(404).send({ error: 'User not found' })
+    }
+
+    return { user }
+  })
+
+  app.delete('/:id', { preHandler: [authorizeAdmin] }, async (request, reply) => {
+    const { id } = request.params as { id: string }
+
+    const user = await knex('users')
+      .where({ id })
+      .del()
+
+    if (!user) {
+      return reply.code(404).send({ error: 'User not found' })
+    }
+
+    return { user }
 
   })
 

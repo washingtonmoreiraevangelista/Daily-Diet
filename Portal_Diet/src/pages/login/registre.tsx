@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Box, TextField, Button, Typography, Alert, InputAdornment, IconButton, Link } from "@mui/material"
 import type { IUser } from '../../@types'
-import { useNavigate, Link as RouterLink } from 'react-router'
+import { useNavigate} from 'react-router'
 import { authService } from '../../service/user.service'
 import { Visibility, VisibilityOff } from '@mui/icons-material'
 import { theme } from '../../core/styles/base'
@@ -38,8 +38,6 @@ export const Register = () => {
       setError("A senha deve conter ao menos 8 caracteres, incluindo letras e números.")
       return
     }
-
-
 
     try {
       const response = await authService.register(user)

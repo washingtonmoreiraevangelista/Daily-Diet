@@ -12,9 +12,9 @@ export const mealsService = {
     }
   },
 
-  async getAllMeals() {
+  async getAllMeals(page = 1, limit = 10) {
     try {
-      const response = await environment('/meals/all', 'GET')
+      const response = await environment(`/meals/all?page=${page}&limit=${limit}`, 'GET')
       return response
     } catch (error) {
       console.error('Erro ao buscar a dieta:', error)

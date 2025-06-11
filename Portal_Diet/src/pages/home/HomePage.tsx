@@ -7,6 +7,7 @@ import {
   DialogActions,
   Typography,
   Container,
+  Pagination,
 } from '@mui/material'
 import type { Meals } from '../../@types/diet'
 import { FloatingAddButton } from '../../core/layout/floatingAddButton'
@@ -14,7 +15,7 @@ import { MealForm } from '../../components/forms/mealForms'
 import { MealCard } from '../../components/cardsPage/mealCards'
 import { mealsService } from '../../service/meals.service'
 export const HomePage = () => {
-  const [meals, setMeals] = useState<Meals[]>()
+  const [meals, setMeals] = useState<Meals[]>([])
   const [modalOpen, setModalOpen] = useState(false)
   const [newMeal, setNewMeal] = useState<Meals>({
     name: '',
@@ -25,6 +26,9 @@ export const HomePage = () => {
     created_at: new Date(),
   })
 
+  const [page, setPage] = useState(1)
+  const [limit] = useState(7)
+  const [total, setTotal] = useState(0)
 
 
   const creatMeal = async () => {
@@ -45,8 +49,9 @@ export const HomePage = () => {
 
   const fetchMeals = async () => {
     try {
-      const response = await mealsService.getAllMeals()
-      setMeals(response)
+      const response = await mealsService.getAllMeals(page, limit)
+      setMeals(response.meals)
+      setTotal(response.total)
     } catch (error) {
       console.log(error)
     }
@@ -54,7 +59,7 @@ export const HomePage = () => {
 
   useEffect(() => {
     fetchMeals()
-  }, [])
+  }, [page])
 
   const handleChange = (field: keyof Meals, value: string | boolean) => {
     const convertedValue =
@@ -148,6 +153,16 @@ export const HomePage = () => {
           )}
         </Box>
 
+        <Box mt={4} display="flex" justifyContent="center">
+          <Pagination
+            count={Math.ceil(total / limit)}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            color="primary"
+          />
+        </Box>
+
+        {/* <Typography sx={{ alignSelf: 'center' }}>Página {page} de {Math.ceil(total / limit)}</Typography> */}
 
         {/* Modal de Nova Refeição */}
         <Dialog open={modalOpen} onClose={resetFormAndClose} fullWidth maxWidth="sm">

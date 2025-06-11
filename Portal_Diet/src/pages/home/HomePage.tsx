@@ -75,7 +75,7 @@ export const HomePage = () => {
       description: '',
       date: '',
       time: '',
-      isDiet: 'não',
+      isDiet: '',
       created_at: new Date(),
     })
   }

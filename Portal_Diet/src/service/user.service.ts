@@ -1,3 +1,4 @@
+import type { IUser } from '../@types'
 import { environment } from '../tools/axiosInstance'
 
 export const authService = {

@@ -26,7 +26,7 @@ export const Header = () => {
       <AppBar position="fixed"> 
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
-            Bem Nutrido !
+            Bem Vindo  !
           </Typography>
           <IconButton onClick={handleMenuOpen} color="inherit">
             <Avatar>
@@ -42,9 +42,7 @@ export const Header = () => {
         </Toolbar>
       </AppBar>
 
-      {/* Adiciona espaçamento para não cobrir o conteúdo */}
       <Box sx={{ marginTop: "64px" }}>
-        {/* O conteúdo da página ficará aqui */}
       </Box>
     </Box>
   )

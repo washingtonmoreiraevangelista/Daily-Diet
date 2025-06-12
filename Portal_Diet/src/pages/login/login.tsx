@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useNavigate, Link as RouterLink } from 'react-router'
+import { useEffect, useState } from "react"
 import {
   Box,
   Button,
@@ -8,137 +7,178 @@ import {
   TextField,
   Typography,
   Link,
-  useTheme,
-} from '@mui/material'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import PersonOutlinedIcon from '@mui/icons-material/PersonOutlined'
-import { authService } from '../../service/user.service'
+  Checkbox,
+  FormControlLabel,
+} from "@mui/material"
+import { LogIn, Eye, EyeOff } from "lucide-react"
+import { authService } from "../../service/user.service"
+import { useNavigate } from 'react-router'
 
-export const Login = () => {
-  const theme = useTheme() // <-- pega o tema
-  const [name, setName] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
+export const LoginForm = () => {
+  const [name, setName] = useState("")
+  const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
-
+  const [rememberMe, setRememberMe] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
   const navigate = useNavigate()
 
-  const handleLogin = async () => {
+    useEffect(() => {
+    if (name) {
+      localStorage.setItem("loginName", name)
+    } else {
+      localStorage.removeItem("loginName")
+    }
+  }, [name])
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setError("")
+    setIsLoading(true)
+
     try {
       const response = await authService.login({ name, password })
       if (response?.token) {
-        localStorage.setItem('token', response.token)
-        navigate('/homePage')
+        localStorage.setItem("token", response.token)
+        // Pode usar rememberMe para persistência adicional se quiser
+        navigate("/homePage")
       } else {
-        setError('Nome ou senha incorretos')
+        setError("Nome ou senha incorretos")
       }
     } catch {
-      setError('Nome ou senha incorretos')
+      setError("Nome ou senha incorretos")
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  const handleTogglePassword = () => {
-    setShowPassword((prev) => !prev)
-  }
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    handleLogin()
-  }
-
   return (
-
     <Box
       component="form"
       onSubmit={handleSubmit}
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        width: '100%',
-        maxWidth: 300,
-        backgroundColor: 'rgba(255,255,255,0.1)',
-        padding: 3,
-        boxShadow: theme.shadows[5],
-        backdropFilter: 'blur(20px)',
-        borderRadius: '16px',
-        margin: 'auto',
+        maxWidth: 360,
+        mx: "auto",
+        p: 4,
+        bgcolor: "rgba(255,255,255,0.1)",
+        borderRadius: 2,
+        boxShadow: 3,
+        backdropFilter: "blur(20px)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
       }}
     >
-      <PersonOutlinedIcon
-        sx={{ fontSize: 40, alignSelf: 'center', color: theme.palette.primary.main }}
-      />
-
-      <Typography
-        variant="h4"
-        sx={{ marginBottom: 3, textAlign: 'center', color: '#222' /* ou theme.palette.text.primary */ }}
-      >
+      <Typography variant="h4" textAlign="center" gutterBottom>
         Bem Nutrido
       </Typography>
 
       {error && (
         <Typography
           variant="body2"
-          sx={{ color: theme.palette.error.main, textAlign: 'center', marginBottom: 2 }}
+          color="error"
+          textAlign="center"
+          sx={{ mb: 1, fontWeight: "bold" }}
         >
           {error}
         </Typography>
       )}
 
       <TextField
-        label="Name"
-        variant="outlined"
-        type="text"
+        label="Nome"
         value={name}
         onChange={(e) => setName(e.target.value)}
         required
-        sx={{
-          marginBottom: 2,
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '14px'
-          }
-        }}
+        fullWidth
+        autoComplete="username"
+        sx={{ borderRadius: 2 }}
       />
 
       <TextField
-        label="Password"
-        variant="outlined"
-        type={showPassword ? 'text' : 'password'}
+        label="Senha"
+        type={showPassword ? "text" : "password"}
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         required
-        sx={{
-          marginBottom: 2,
-          '& .MuiOutlinedInput-root': {
-            borderRadius: '14px'
-          }
-        }}
+        fullWidth
+        autoComplete="current-password"
+        sx={{ borderRadius: 2 }}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
-              <IconButton onClick={handleTogglePassword} edge="end">
-                {showPassword ? <VisibilityOff /> : <Visibility />}
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+                aria-label="toggle password visibility"
+              >
+                {showPassword ? (
+                  <EyeOff size={20} />
+                ) : (
+                  <Eye size={20} />
+                )}
               </IconButton>
             </InputAdornment>
           ),
         }}
       />
 
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+          />
+        }
+        label="Lembrar de mim"
+      />
+
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Link
+          component="button"
+          variant="body2"
+          onClick={() =>
+            alert("Funcionalidade de recuperação de senha ainda não implementada.")
+          }
+          sx={{ cursor: "pointer" }}
+        >
+          Esqueci a senha
+        </Link>
+      </Box>
+
       <Button
         type="submit"
         variant="contained"
+        disabled={isLoading}
         sx={{
-          marginTop: 2,
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.primary.contrastText,
-          '&:hover': {
-            backgroundColor: theme.palette.primary.dark,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          py: 1.5,
+          borderRadius: 3,
+          background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+          "&:hover": {
+            background: "linear-gradient(90deg, #2563eb, #7c3aed)",
           },
-          borderRadius: '14px',
         }}
       >
-        Enter
+        {isLoading ? (
+          <Typography variant="body1">Entrando...</Typography>
+        ) : (
+          <>
+            <LogIn size={20} />
+            <Typography variant="body1">Entrar</Typography>
+          </>
+        )}
       </Button>
-
     </Box>
   )
 }

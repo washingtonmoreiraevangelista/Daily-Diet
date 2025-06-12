@@ -1,68 +1,68 @@
 import React, { useState } from "react"
-import { Box, TextField, Button, Typography, Alert, InputAdornment, IconButton, Link } from "@mui/material"
-import type { IUser } from '../../@types'
-import { useNavigate} from 'react-router'
+import {
+  Box,
+  TextField,
+  Button,
+  Typography,
+  Alert,
+  InputAdornment,
+  IconButton,
+} from "@mui/material"
+import PersonAddIcon from '@mui/icons-material/PersonAdd'
+import { Visibility, VisibilityOff } from "@mui/icons-material"
 import { authService } from '../../service/user.service'
-import { Visibility, VisibilityOff } from '@mui/icons-material'
-import { theme } from '../../core/styles/base'
 
-
-export const Register = () => {
-  const [user, setUser] = useState<IUser>({
-    name: "",
-    password: "",
-  })
-
+export const RegisterForm = () => {
+  const [name, setName] = useState("")
+  const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  const navigate = useNavigate()
+  const validate = () => {
+    if (!name || !password) {
+      setError("Preencha todos os campos!")
+      return false
+    }
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUser({ ...user, [e.target.name]: e.target.value })
+    if (name.trim().split(" ").length < 2) {
+      setError("Informe seu nome completo!")
+      return false
+    }
+
+    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(password)) {
+      setError(
+        "A senha deve conter ao menos 8 caracteres, incluindo letras e números."
+      )
+      return false
+    }
+
+    setError("")
+    return true
   }
 
   const handleRegister = async () => {
-    if (!user.name || !user.password) {
-      setError(" Preencha todos os campos!")
-      return
-    }
+    if (!validate()) return
 
-    if (user.name.trim().split(" ").length < 2) {
-      setError(" Informe seu nome !")
-      return
-    }
-
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(user.password)) {
-      setError("A senha deve conter ao menos 8 caracteres, incluindo letras e números.")
-      return
-    }
+    setIsLoading(true)
+    setError("")
+    setSuccess("")
 
     try {
-      const response = await authService.register(user)
-      const token = response.token
-      localStorage.setItem('token', token)
+      const response = await authService.register({ name, password })
+      localStorage.setItem("token", response.token)
+
+      await new Promise((r) => setTimeout(r, 1500))
 
       setSuccess("Usuário registrado com sucesso!")
-      setUser({ name: "", password: "" })
-      setError("")
-
-      setTimeout(() => {
-        setSuccess("")
-        navigate('/homepage')
-      }, 2000)
-    } catch (error: any) {
-      if (error.response?.status === 401 || error.response?.status === 409) {
-        setError("Usuário já existe!")
-      } else {
-        setError("Erro ao registrar usuário!")
-      }
+      setName("")
+      setPassword("")
+    } catch (e) {
+      setError("Erro ao registrar usuário!")
+    } finally {
+      setIsLoading(false)
     }
-  }
-
-  const handleTogglePassword = () => {
-    setShowPassword((prev) => !prev)
   }
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -72,111 +72,86 @@ export const Register = () => {
 
   return (
     <Box
+      component="form"
+      onSubmit={handleSubmit}
       sx={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: '100vh',
-        padding: 2,
-        background: `linear-gradient(
-      135deg,
-      #a8e6cf,   /* verde claro */
-      #f8bbd0,   /* rosa claro */
-      #ffffff,   /* branco */
-      #fff9c4,   /* amarelo claro */
-      #ffe0b2,   /* laranja claro */
-      #bbdefb    /* azul claro */
-    )`,
-        // backgroundImage: `url(${dietImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        backgroundRepeat: 'no-repeat',
+        maxWidth: 360,
+        mx: "auto",
+        mt: 6,
+        p: 4,
+        borderRadius: 3,
+        boxShadow: 3,
+        bgcolor: "rgba(255,255,255,0.1)",
+        display: "flex",
+        flexDirection: "column",
+        gap: 2,
       }}
     >
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
+      <Typography variant="h5" textAlign="center" fontWeight="medium">
+        Cadastro
+      </Typography>
+
+      {error && <Alert severity="error">{error}</Alert>}
+      {success && <Alert severity="success">{success}</Alert>}
+
+      <TextField
+        label="Nome completo"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        required
+        fullWidth
+        autoComplete="name"
+        disabled={isLoading}
+      />
+
+      <TextField
+        label="Senha"
+        type={showPassword ? "text" : "password"}
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+        fullWidth
+        autoComplete="new-password"
+        disabled={isLoading}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+                disabled={isLoading}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+
+      <Button
+        type="submit"
+        variant="contained"
+        disabled={isLoading}
+        startIcon={<PersonAddIcon />}
         sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          width: '100%',
-          maxWidth: 300,
-          backgroundColor: 'rgba(255,255,255,0.1)',
-          padding: 4,
-          boxShadow: theme.shadows[5],
-          backdropFilter: 'blur(20px)',
-          borderRadius: '16px',
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          gap: 1,
+          py: 1.5,
+          fontWeight: "medium",
+          textTransform: "none",
+          borderRadius: 3,
+          background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
+          color: "#fff",
+          "&:hover": {
+            background: "linear-gradient(90deg, #2563eb, #7c3aed)",
+          },
         }}
       >
-        <Typography variant="h5" textAlign="center">
-          Cadastro !
-        </Typography>
-
-        <TextField
-          label="Nome de usuário"
-          type="text"
-          name="name"
-          value={user.name}
-          onChange={handleChange}
-          variant="outlined"
-          fullWidth
-          required
-          sx={{
-            marginBottom: 2,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '14px'
-            }
-          }}
-        />
-
-        <TextField
-          label="Senha"
-          type={showPassword ? 'text' : 'password'}
-          name="password"
-          value={user.password}
-          onChange={handleChange}
-          variant="outlined"
-          fullWidth
-          required
-          sx={{
-            marginBottom: 2,
-            '& .MuiOutlinedInput-root': {
-              borderRadius: '14px'
-            }
-          }}
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={handleTogglePassword} edge="end">
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        {error && <Alert severity="error">{error}</Alert>}
-        {success && <Alert severity="success">{success}</Alert>}
-
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          fullWidth
-          sx={{
-            marginTop: 2,
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.primary.contrastText,
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-            },
-            borderRadius: '14px',
-          }}
-        >
-          Registrar
-        </Button>
-      </Box>
+        {isLoading ? "Criando conta..." : "Criar conta"}
+      </Button>
     </Box>
   )
 }

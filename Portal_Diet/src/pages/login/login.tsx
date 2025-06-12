@@ -15,7 +15,7 @@ import { authService } from "../../service/user.service"
 import { useNavigate } from 'react-router'
 
 export const LoginForm = () => {
-  const [name, setName] = useState("")
+  const [userName, setuserName] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [rememberMe, setRememberMe] = useState(false)
@@ -24,12 +24,12 @@ export const LoginForm = () => {
   const navigate = useNavigate()
 
     useEffect(() => {
-    if (name) {
-      localStorage.setItem("loginName", name)
+    if (userName) {
+      localStorage.setItem("loginName", userName)
     } else {
       localStorage.removeItem("loginName")
     }
-  }, [name])
+  }, [userName])
 
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -38,7 +38,7 @@ export const LoginForm = () => {
     setIsLoading(true)
 
     try {
-      const response = await authService.login({ name, password })
+      const response = await authService.login({ userName, password })
       if (response?.token) {
         localStorage.setItem("token", response.token)
         // Pode usar rememberMe para persistência adicional se quiser
@@ -86,9 +86,9 @@ export const LoginForm = () => {
       )}
 
       <TextField
-        label="Nome"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        label="Usuario"
+        value={userName}
+        onChange={(e) => setuserName(e.target.value)}
         required
         fullWidth
         autoComplete="username"

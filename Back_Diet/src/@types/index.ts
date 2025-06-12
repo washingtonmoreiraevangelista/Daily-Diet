@@ -2,7 +2,8 @@ declare module 'knex/types/tables' {
   export interface Tables {
     users: {
       id: string
-      name: string
+      userName: string
+      email: string
       password: string
       session_id?: string
       role:string,

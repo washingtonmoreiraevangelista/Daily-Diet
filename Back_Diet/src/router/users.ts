@@ -11,22 +11,26 @@ export async function usersRoutes(app: FastifyInstance) {
 
   app.post('/register', async (request, reply) => {
     const createUserSchema = z.object({
-      name: z.string(),
+      userName: z.string(),
+      email: z.string().email(),
       password: z.string(),
       role: z.enum(['Admin', 'user']).default('user'),
     })
 
-    const { name, password, role } = createUserSchema.parse(request.body)
+    const { userName, password, email, role } = createUserSchema.parse(request.body)
+    const normalizedUserName = userName.toLowerCase().replace(/\s/g, '')
+    const normalizedEmail = email.toLowerCase()
 
     const existingUser = await knex('users')
-      .whereRaw('LOWER(REPLACE(name, \' \', \'\')) = ?', name.toLowerCase().replace(/\s/g, ''))
+      .whereRaw('LOWER(REPLACE(userName, \' \', \'\')) = ?', normalizedUserName)
+      .orWhereRaw('LOWER(email) = ?', normalizedEmail)
       .first()
 
     if (existingUser) {
-      return reply.code(400).send({ message: 'Usuário já existe.' })
+      return reply.code(400).send({ message: 'Usuário ou e-mail já cadastrado.' })
     }
-
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
+
     if (!passwordRegex.test(password)) {
       return reply.code(400).send({
         error: 'A senha deve conter pelo menos 8 caracteres, incluindo letras e números.',
@@ -38,7 +42,8 @@ export async function usersRoutes(app: FastifyInstance) {
 
     await knex('users').insert({
       id: userId,
-      name,
+      userName,
+      email,
       password: hashedPassword,
       role,
       created_at: new Date().toISOString().split('T')[0],
@@ -52,14 +57,14 @@ export async function usersRoutes(app: FastifyInstance) {
 
   app.post('/login', async (request, reply) => {
     const loginBodySchema = z.object({
-      name: z.string(),
+      userName: z.string(),
       password: z.string(),
     })
 
-    const { name, password } = loginBodySchema.parse(request.body)
+    const { userName, password } = loginBodySchema.parse(request.body)
 
     const user = await knex('users')
-      .whereRaw('LOWER(REPLACE(name, \' \', \'\')) = ?', name.toLowerCase().replace(/\s/g, ''))
+      .whereRaw('LOWER(REPLACE(name, \' \', \'\')) = ?', userName.toLowerCase().replace(/\s/g, ''))
       .first()
 
     if (!user || !(await bcrypt.compare(password, user.password))) {

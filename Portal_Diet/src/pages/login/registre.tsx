@@ -13,7 +13,8 @@ import { Visibility, VisibilityOff } from "@mui/icons-material"
 import { authService } from '../../service/user.service'
 
 export const RegisterForm = () => {
-  const [name, setName] = useState("")
+  const [userName, setUserName] = useState("")
+  const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState("")
@@ -21,13 +22,18 @@ export const RegisterForm = () => {
   const [isLoading, setIsLoading] = useState(false)
 
   const validate = () => {
-    if (!name || !password) {
+    if (!userName || !email || !password) {
       setError("Preencha todos os campos!")
       return false
     }
 
-    if (name.trim().split(" ").length < 2) {
-      setError("Informe seu nome completo!")
+    if (userName.trim().split(" ").length < 2) {
+      setError("Informe seu usuário completo!")
+      return false
+    }
+
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("Informe um e-mail válido!")
       return false
     }
 
@@ -50,16 +56,17 @@ export const RegisterForm = () => {
     setSuccess("")
 
     try {
-      const response = await authService.register({ name, password })
+      const response = await authService.register({ userName, email, password })
       localStorage.setItem("token", response.token)
 
       await new Promise((r) => setTimeout(r, 1500))
 
       setSuccess("Usuário registrado com sucesso!")
-      setName("")
+      setUserName("")
+      setEmail("")
       setPassword("")
-    } catch (e) {
-      setError("Erro ao registrar usuário!")
+    } catch (e: any) {
+      setError(e?.response?.data?.message || "Erro ao registrar usuário!")
     } finally {
       setIsLoading(false)
     }
@@ -96,11 +103,21 @@ export const RegisterForm = () => {
 
       <TextField
         label="Nome completo"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
+        value={userName}
+        onChange={(e) => setUserName(e.target.value)}
         required
         fullWidth
         autoComplete="name"
+        disabled={isLoading}
+      />
+
+      <TextField
+        label="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+        fullWidth
+        autoComplete="email"
         disabled={isLoading}
       />
 
@@ -135,10 +152,6 @@ export const RegisterForm = () => {
         disabled={isLoading}
         startIcon={<PersonAddIcon />}
         sx={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 1,
           py: 1.5,
           fontWeight: "medium",
           textTransform: "none",

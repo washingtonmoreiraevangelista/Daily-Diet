@@ -27,7 +27,7 @@ export const LoginRegisterSplit = () => {
       sx={{
         width: "100vw",
         height: "100vh",
-        overflowX: "hidden", 
+        overflowX: "hidden",
         position: "fixed",
         top: 0,
         left: 0,
@@ -62,19 +62,19 @@ export const LoginRegisterSplit = () => {
           borderRadius: "50%",
         }}
       />
-<Card
-  elevation={12}
-  sx={{
-    backdropFilter: "blur(10px)",
-    bgcolor: "rgba(255, 255, 255, 0.75)", // leve transparência
-    maxWidth: 440,
-    width: "100%",
-    mx: "auto",
-    px: 2,
-    py: 0,
-    zIndex: 10,
-  }}
->
+      <Card
+        elevation={12}
+        sx={{
+          backdropFilter: "blur(10px)",
+          bgcolor: "rgba(255, 255, 255, 0.75)",
+          maxWidth: 440,
+          width: "100%",
+          mx: "auto",
+          px: 2,
+          py: 0,
+          zIndex: 10,
+        }}
+      >
         <CardHeader
           sx={{ textAlign: "center", pt: 2, pb: 1 }}
           title={

@@ -39,36 +39,36 @@ export const registerDiet = async (app: FastifyInstance) => {
   })
 
   app.get('/all', { preHandler: [authenticate] }, async (request, reply) => {
-    const userId = (request.user as { sub: string }).sub
+  const userId = (request.user as { sub: string }).sub
 
-    const { page = 1, limit = 10 } = request.query as { page?: number, limit?: number }
+  const { page = '1', limit = '10' } = request.query as { page?: string, limit?: string }
 
-    const pageNumber = page
-    const limitNumber = limit
+  const pageNumber = parseInt(page)
+  const limitNumber = parseInt(limit)
 
-    const offset = (pageNumber - 1) * limitNumber
+  if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber < 1 || limitNumber < 1) {
+    return reply.code(400).send({ message: 'Parâmetros page e limit inválidos' })
+  }
 
-    const [total] = await knex('meals').where({ userId }).count<{ count: string }[]>('id as count')
+  const offset = (pageNumber - 1) * limitNumber
 
-    const meals = await knex('meals')
-      .where({ userId })
-      .limit(limitNumber)
-      .orderBy('created_at', 'desc')
-      .offset(offset)
-      .select()
+  const [totalResult] = await knex('meals').where({ userId }).count<{ count: string }[]>('id as count')
 
-    if (meals.length === 0) {
-      return reply.code(400).send({ mesage: 'Nenhuma dieta registrada!' })
-    }
+  const meals = await knex('meals')
+    .where({ userId })
+    .limit(limitNumber)
+    .orderBy('created_at', 'desc')
+    .offset(offset)
+    .select('*')
 
-    return reply.code(200).send({
-      meals,
-      total: Number(total.count),
-      page: pageNumber,
-      limit: limitNumber,
-    })
-
+  return reply.code(200).send({
+    meals,
+    total: Number(totalResult.count),
+    page: pageNumber,
+    limit: limitNumber,
   })
+})
+
 
   // app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
   //   const userId = (request.user as { sub: string }).sub
@@ -87,7 +87,7 @@ export const registerDiet = async (app: FastifyInstance) => {
   // })
 
 
-  app.put('/update/:id', { preHandler: [authenticate] }, async (request, reply) => {
+  app.put('/:id', { preHandler: [authenticate] }, async (request, reply) => {
     const userId = (request.user as { sub: string }).sub
     const { id } = request.params as { id: string }
 
@@ -118,20 +118,20 @@ export const registerDiet = async (app: FastifyInstance) => {
   })
 
 
-  // app.delete("/:id", { preHandler: [authenticate] }, async (request, reply) => {
-  //   const userId = (request.user as { sub: string }).sub
-  //   const { id } = request.params as { id: string }
+  app.delete("/:id", { preHandler: [authenticate] }, async (request, reply) => {
+    const userId = (request.user as { sub: string }).sub
+    const { id } = request.params as { id: string }
 
-  //   const diet = await knex('meals')
-  //     .where({ id, userId: userId })
-  //     .del()
+    const diet = await knex('meals')
+      .where({ id, userId: userId })
+      .del()
 
-  //   if (!diet) {
-  //     return reply.code(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
-  //   }
+    if (!diet) {
+      return reply.code(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
+    }
 
-  //   return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
-  // })
+    return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
+  })
 
   // app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {
   //   const userId = (request.user as { sub: string }).sub

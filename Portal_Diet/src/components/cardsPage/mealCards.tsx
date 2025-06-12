@@ -1,14 +1,24 @@
-import { Card, CardContent, Typography, Box, Chip, Button } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  IconButton,
+  Tooltip,
+} from '@mui/material'
 import { Coffee, Sun, Moon, Cookie } from 'lucide-react'
 import type { Meals } from '../../@types/diet'
 import UpdateIcon from '@mui/icons-material/Update'
+import DeleteIcon from '@mui/icons-material/Delete'
 
 type MealCardProps = {
   meal: Meals
   onEdit: () => void
+  onDelete: () => void
 }
 
-export const MealCard = ({ meal, onEdit }: MealCardProps) => {
+export const MealCard = ({ meal, onEdit, onDelete }: MealCardProps) => {
   const mealIcons = {
     'Café da Manhã': Coffee,
     'Almoço': Sun,
@@ -17,6 +27,10 @@ export const MealCard = ({ meal, onEdit }: MealCardProps) => {
     'Jantar': Moon,
   }
   const IconComponent = mealIcons[meal.name as keyof typeof mealIcons] || Coffee
+
+  const formatDate = (date: string) => {
+  return new Date(date).toLocaleDateString('pt-BR')
+}
 
   return (
     <Card
@@ -37,13 +51,12 @@ export const MealCard = ({ meal, onEdit }: MealCardProps) => {
               {meal.name}
             </Typography>
           </Box>
-          <Box display="flex" alignItems="center" gap={1}>
-            <Chip
-              label={meal.isDiet === 'sim' ? 'Dentro da dieta' : 'Fora da dieta'}
-              color={meal.isDiet === 'sim' ? 'success' : 'error'}
-              size="small"
-            />
-          </Box>
+
+          <Chip
+            label={meal.isDiet === 'sim' ? 'Dentro da dieta' : 'Fora da dieta'}
+            color={meal.isDiet === 'sim' ? 'success' : 'error'}
+            size="small"
+          />
         </Box>
 
         <Typography variant="body2" color="text.secondary" mb={1}>
@@ -51,12 +64,22 @@ export const MealCard = ({ meal, onEdit }: MealCardProps) => {
         </Typography>
 
         <Typography variant="caption" color="text.disabled">
-          {meal.date} às {meal.time}
+          {formatDate(meal.date)} às {meal.time}
         </Typography>
       </CardContent>
-      <Button variant="outlined" size="small" onClick={onEdit}>
-        <UpdateIcon />
-      </Button>
+
+      <Box display="flex" justifyContent="flex-end" alignItems="center" px={2} pb={1}>
+        <Tooltip title="Editar">
+          <IconButton size="small" onClick={onEdit} color="primary">
+            <UpdateIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+        <Tooltip title="Excluir">
+          <IconButton size="small" onClick={onDelete} color="error">
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        </Tooltip>
+      </Box>
     </Card>
   )
 }

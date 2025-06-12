@@ -23,13 +23,22 @@ export const mealsService = {
   },
 
   // não atualiza
-  
+
   async updateDiet(id: string, data: Omit<Meals, 'id'>) {
     try {
-      const response = await environment(`/meals/update/${id}`, 'PUT', data)
+      const response = await environment(`/meals/${id}`, 'PUT', data)
       return response
     } catch (error) {
       throw new Error('Erro ao atualizar a dieta')
+    }
+  },
+
+  async deleteDiet(id: string) {
+    try {
+      const response = await environment(`/meals/${id}`, 'DELETE')
+      return response
+    } catch (error) {
+      throw new Error('Erro ao deletar a dieta')
     }
   }
 

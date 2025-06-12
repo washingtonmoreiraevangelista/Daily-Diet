@@ -49,10 +49,10 @@ export const HomePage = () => {
     }
   }
 
-  const handleUpdateMeal = async (userData: Meals) => {
+  const handleUpdateMeal = async (userId: string, userData: Meals) => {
     try {
       const { id, ...updatedMeal } = userData
-      await mealsService.updateDiet(id, updatedMeal)
+      await mealsService.updateDiet(userId, updatedMeal)
       await fetchMeals()
       closeEditModal()
     } catch (error) {
@@ -60,6 +60,14 @@ export const HomePage = () => {
     }
   }
 
+  const handleDeleteMeal = async (id: string) => {
+    try {
+      await mealsService.deleteDiet(id)
+      await fetchMeals()
+    } catch (error) {
+      console.error('Erro ao deletar refeição:', error)
+    }
+  }
 
 
   const fetchMeals = async () => {
@@ -67,8 +75,16 @@ export const HomePage = () => {
       const response = await mealsService.getAllMeals(page, limit)
       setMeals(response.meals)
       setTotal(response.total)
+
+      if (response.meals.length === 0 && page > 1) {
+        setPage(page - 1)
+      } else {
+        setMeals(response.meals)
+        setTotal(response.total)
+      }
+
     } catch (error) {
-      console.log(error)
+      console.error('Erro ao deletar refeição:', error)
     }
   }
 
@@ -176,6 +192,7 @@ export const HomePage = () => {
                 <MealCard
                   meal={meal}
                   onEdit={() => openEditModal(meal)}
+                  onDelete={() => handleDeleteMeal(meal.id!)}
                 />
               </Box>
             ))
@@ -194,7 +211,9 @@ export const HomePage = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={closeEditModal}>Cancelar</Button>
-              <Button variant="contained" onClick={() => mealToEdit && handleUpdateMeal(mealToEdit)}>
+              <Button variant="contained"
+                onClick={() => mealToEdit && handleUpdateMeal(mealToEdit.id!, mealToEdit)}
+              >
                 Salvar
               </Button>
             </DialogActions>

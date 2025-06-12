@@ -34,7 +34,7 @@ export const Header = () => {
             </Avatar>
           </IconButton>
           <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={handleMenuClose}>
-            <MenuItem onClick={() => navigate("/perfil")}>Perfil</MenuItem>
+            <MenuItem onClick={() => navigate("/Profile")}>Perfil</MenuItem>
             <MenuItem onClick={handleLogout}>
               <LogoutIcon sx={{ marginRight: 1 }} /> Logout
             </MenuItem>

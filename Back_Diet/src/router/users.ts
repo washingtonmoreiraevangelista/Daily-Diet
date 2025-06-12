@@ -64,7 +64,7 @@ export async function usersRoutes(app: FastifyInstance) {
     const { userName, password } = loginBodySchema.parse(request.body)
 
     const user = await knex('users')
-      .whereRaw('LOWER(REPLACE(name, \' \', \'\')) = ?', userName.toLowerCase().replace(/\s/g, ''))
+      .whereRaw('LOWER(REPLACE(userName, \' \', \'\')) = ?', userName.toLowerCase().replace(/\s/g, ''))
       .first()
 
     if (!user || !(await bcrypt.compare(password, user.password))) {

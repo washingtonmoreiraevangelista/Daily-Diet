@@ -11,6 +11,7 @@ import {
 import PersonAddIcon from '@mui/icons-material/PersonAdd'
 import { Visibility, VisibilityOff } from "@mui/icons-material"
 import { authService } from '../../service/user.service'
+import { useNavigate } from 'react-router'
 
 export const RegisterForm = () => {
   const [userName, setUserName] = useState("")
@@ -20,6 +21,8 @@ export const RegisterForm = () => {
   const [error, setError] = useState("")
   const [success, setSuccess] = useState("")
   const [isLoading, setIsLoading] = useState(false)
+  const navigate = useNavigate()
+
 
   const validate = () => {
     if (!userName || !email || !password) {
@@ -27,10 +30,10 @@ export const RegisterForm = () => {
       return false
     }
 
-    if (userName.trim().split(" ").length < 2) {
-      setError("Informe seu usuário completo!")
-      return false
-    }
+    // if (userName.trim().split(" ").length < 2) {
+    //   setError("Informe seu usuário completo!")
+    //   return false
+    // }
 
     if (!/\S+@\S+\.\S+/.test(email)) {
       setError("Informe um e-mail válido!")
@@ -65,6 +68,7 @@ export const RegisterForm = () => {
       setUserName("")
       setEmail("")
       setPassword("")
+      navigate('/homepage')
     } catch (e: any) {
       setError(e?.response?.data?.message || "Erro ao registrar usuário!")
     } finally {
@@ -102,7 +106,7 @@ export const RegisterForm = () => {
       {success && <Alert severity="success">{success}</Alert>}
 
       <TextField
-        label="Nome completo"
+        label="Usuario"
         value={userName}
         onChange={(e) => setUserName(e.target.value)}
         required

@@ -15,6 +15,7 @@ import PersonIcon from "@mui/icons-material/Person"
 import PersonAddIcon from "@mui/icons-material/PersonAdd"
 import { LoginForm } from './login'
 import { RegisterForm } from './registre'
+import Diet from '../../assets/diet.png'
 
 export const LoginRegisterSplit = () => {
   const theme = useTheme()
@@ -24,14 +25,15 @@ export const LoginRegisterSplit = () => {
   return (
     <Box
       sx={{
-        minHeight: "50vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "linear-gradient(to bottom right, #eff6ff, #faf5ff)",
-        position: "relative",
-        p: 2,
-        overflow: "hidden",
+        width: "100vw",
+        height: "100vh",
+        overflowX: "hidden", 
+        position: "fixed",
+        top: 0,
+        left: 0,
+        backgroundImage: `url(${Diet})`,
+        backgroundSize: "cover",
+        backgroundPosition: "center",
       }}
     >
       <Box
@@ -60,19 +62,19 @@ export const LoginRegisterSplit = () => {
           borderRadius: "50%",
         }}
       />
-      <Card
-        elevation={12}
-        sx={{
-          backdropFilter: "blur(10px)",
-          bgcolor: "background.paper",
-          maxWidth: 440,
-          width: "100%",
-          mx: "auto",
-          px: 2,
-          py: 0,
-          zIndex: 10,
-        }}
-      >
+<Card
+  elevation={12}
+  sx={{
+    backdropFilter: "blur(10px)",
+    bgcolor: "rgba(255, 255, 255, 0.75)", // leve transparência
+    maxWidth: 440,
+    width: "100%",
+    mx: "auto",
+    px: 2,
+    py: 0,
+    zIndex: 10,
+  }}
+>
         <CardHeader
           sx={{ textAlign: "center", pt: 2, pb: 1 }}
           title={

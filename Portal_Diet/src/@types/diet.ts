@@ -8,3 +8,17 @@ export interface Meals {
   isDiet: string
   created_at: Date
 }
+
+
+export interface MetricsData {
+  totalMeals: number
+  withinDiet: number
+  outDiet: number
+  percentWithinDiet: number
+  percentOutDiet: number
+  bestDietSequence: number
+  bestSequenceDates: {
+    startDate: string
+    endDate: string
+  } | null
+}

@@ -14,6 +14,7 @@ import { FloatingAddButton } from '../../core/layout/floatingAddButton'
 import { MealForm } from '../../components/forms/mealForms'
 import { MealCard } from '../../components/cardsPage/mealCards'
 import { mealsService } from '../../service/meals.service'
+import { DashboardStats } from '../../components/metrics/dashBoardCard'
 export const HomePage = () => {
   const [meals, setMeals] = useState<Meals[]>([])
   const [modalOpen, setModalOpen] = useState(false)
@@ -161,6 +162,11 @@ export const HomePage = () => {
           </Typography>
 
           <FloatingAddButton onClick={() => setModalOpen(true)} />
+
+          <Box mt={6}>
+            <DashboardStats />
+          </Box>
+          
         </Container>
 
         <Box

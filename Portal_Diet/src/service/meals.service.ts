@@ -40,6 +40,15 @@ export const mealsService = {
     } catch (error) {
       throw new Error('Erro ao deletar a dieta')
     }
+  },
+  async metricsDiet(query: string = '') {
+    try {
+      const response = await environment(`/meals/metrics${query}`, 'GET')
+      return response
+    } catch (error) {
+      throw new Error('Erro ao buscar as métricas da dieta')
+    }
   }
+
 
 }

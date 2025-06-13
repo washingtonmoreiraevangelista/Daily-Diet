@@ -39,35 +39,35 @@ export const registerDiet = async (app: FastifyInstance) => {
   })
 
   app.get('/all', { preHandler: [authenticate] }, async (request, reply) => {
-  const userId = (request.user as { sub: string }).sub
+    const userId = (request.user as { sub: string }).sub
 
-  const { page = '1', limit = '10' } = request.query as { page?: string, limit?: string }
+    const { page = '1', limit = '10' } = request.query as { page?: string, limit?: string }
 
-  const pageNumber = parseInt(page)
-  const limitNumber = parseInt(limit)
+    const pageNumber = parseInt(page)
+    const limitNumber = parseInt(limit)
 
-  if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber < 1 || limitNumber < 1) {
-    return reply.code(400).send({ message: 'Parâmetros page e limit inválidos' })
-  }
+    if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber < 1 || limitNumber < 1) {
+      return reply.code(400).send({ message: 'Parâmetros page e limit inválidos' })
+    }
 
-  const offset = (pageNumber - 1) * limitNumber
+    const offset = (pageNumber - 1) * limitNumber
 
-  const [totalResult] = await knex('meals').where({ userId }).count<{ count: string }[]>('id as count')
+    const [totalResult] = await knex('meals').where({ userId }).count<{ count: string }[]>('id as count')
 
-  const meals = await knex('meals')
-    .where({ userId })
-    .limit(limitNumber)
-    .orderBy('created_at', 'desc')
-    .offset(offset)
-    .select('*')
+    const meals = await knex('meals')
+      .where({ userId })
+      .limit(limitNumber)
+      .orderBy('created_at', 'desc')
+      .offset(offset)
+      .select('*')
 
-  return reply.code(200).send({
-    meals,
-    total: Number(totalResult.count),
-    page: pageNumber,
-    limit: limitNumber,
+    return reply.code(200).send({
+      meals,
+      total: Number(totalResult.count),
+      page: pageNumber,
+      limit: limitNumber,
+    })
   })
-})
 
 
   // app.get('/:id', { preHandler: [authenticate] }, async (request, reply) => {
@@ -133,43 +133,66 @@ export const registerDiet = async (app: FastifyInstance) => {
     return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
   })
 
-  // app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {
-  //   const userId = (request.user as { sub: string }).sub
 
+  app.get('/metrics', { preHandler: [authenticate] }, async (request, reply) => {
+    const userId = (request.user as { sub: string }).sub
+    const { startDate, endDate } = request.query as { startDate?: string; endDate?: string }
 
-  //   const allDiet = await knex('meals')
-  //     .where({ userId: userId })
-  //     .select('*')
-  //     .orderBy('date', 'asc')
+    let query = knex('meals').where({ userId })
 
-  //   const totalDiet = allDiet.length
-  //   const withinDiet = allDiet.filter((meal) => meal.is_diet === 'sim').length
-  //   const outDiet = totalDiet - withinDiet
+    if (startDate) {
+      query = query.andWhere('date', '>=', startDate)
+    }
+    if (endDate) {
+      query = query.andWhere('date', '<=', endDate)
+    }
 
-  //   let bestSequence = 0
-  //   let currentSequence = 0
+    const allDiet = await query.select('*').orderBy('date', 'asc')
 
-  //   //for..in
-  //   for (const meal of allDiet) {
-  //     // Verifica se a refeição está dentro da dieta
-  //     if (meal.is_diet === 'sim') {
-  //       currentSequence++
-  //       // Atualiza a melhor sequência
-  //       bestSequence = Math.max(bestSequence, currentSequence)
-  //     } else {
-  //       // Reinicia a sequência se a refeição está fora da dieta
-  //       currentSequence = 0
-  //     }
-  //   }
+    const totalDiet = allDiet.length
+    const withinDiet = allDiet.filter((meal) => meal.isDiet === 'sim').length
+    const outDiet = totalDiet - withinDiet
 
-  //   return reply.send({
-  //     totalMeals: totalDiet,
-  //     withinDiet,
-  //     outDiet,
-  //     bestDietSequence: bestSequence,
-  //   })
+    const percentWithin = totalDiet > 0 ? (withinDiet / totalDiet) * 100 : 0
+    const percentOut = totalDiet > 0 ? (outDiet / totalDiet) * 100 : 0
 
-  // })
+    let bestSequence = 0
+    let currentSequence = 0
+    let tempStartIndex = 0
+    let bestStartIndex = 0
+
+    for (let i = 0; i < allDiet.length; i++) {
+      if (allDiet[i].isDiet === 'sim') {
+        if (currentSequence === 0) tempStartIndex = i
+        currentSequence++
+        if (currentSequence > bestSequence) {
+          bestSequence = currentSequence
+          bestStartIndex = tempStartIndex
+        }
+      } else {
+        currentSequence = 0
+      }
+    }
+
+    const bestSequenceDates =
+      bestSequence > 0
+        ? {
+          startDate: allDiet[bestStartIndex].date,
+          endDate: allDiet[bestStartIndex + bestSequence - 1].date,
+        }
+        : null
+
+    return reply.send({
+      totalMeals: totalDiet,
+      withinDiet,
+      outDiet,
+      percentWithinDiet: Number(percentWithin.toFixed(1)),
+      percentOutDiet: Number(percentOut.toFixed(1)),
+      bestDietSequence: bestSequence,
+      bestSequenceDates,
+    })
+  })
+
 
 
 

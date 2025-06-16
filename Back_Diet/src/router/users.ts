@@ -46,7 +46,7 @@ export async function usersRoutes(app: FastifyInstance) {
       email,
       password: hashedPassword,
       role,
-      created_at: new Date().toISOString().split('T')[0],
+      createdAt: new Date().toISOString().split('T')[0],
     })
 
     const token = app.jwt.sign({}, { sub: userId, expiresIn: '1d' })

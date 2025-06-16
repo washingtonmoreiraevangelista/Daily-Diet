@@ -7,7 +7,8 @@ export async function up(knex: Knex): Promise<void> {
     table.text('userName').notNullable()
     table.text('password').notNullable()
     table.text("role").defaultTo("user").notNullable()
-    table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable()
+    table.text('profilePicture').nullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
   })
 
   await knex.schema.createTable('meals', (table) => {
@@ -18,7 +19,7 @@ export async function up(knex: Knex): Promise<void> {
     table.text('date').notNullable()
     table.text('time').notNullable()
     table.text('isDiet').notNullable()
-    table.timestamp('created_at').defaultTo(knex.fn.now()).notNullable()
+    table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
   })
 }
 

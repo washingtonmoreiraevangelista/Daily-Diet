@@ -23,5 +23,23 @@ export const authService = {
     }
   },
 
+  async getProfile() {
+    try {
+      const response = await environment(`/users/profile`, 'GET')
+      return response
+    } catch (error) {
+      throw new Error('Erro ao buscar perfil')
+    }
+  },
+
+  async updateProfile(data: IUser) {
+    try {
+      const response = await environment('/users/update/profile', 'PUT', data)
+      return response
+    } catch (error) {
+      throw new Error('Erro ao atualizar perfil')
+    }
+  }
+
  
 }

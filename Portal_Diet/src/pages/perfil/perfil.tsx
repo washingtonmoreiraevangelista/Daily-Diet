@@ -4,6 +4,8 @@ import {
 } from '@mui/material'
 import { useState, useEffect } from 'react'
 import { Visibility, VisibilityOff, PhotoCamera } from '@mui/icons-material'
+import { authService } from '../../service/user.service'
+import type { IUser } from '../../@types'
 
 export const ProfilePage = () => {
   const [userName, setUserName] = useState('')
@@ -14,13 +16,22 @@ export const ProfilePage = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
-  useEffect(() => {
-    // Aqui você pode buscar dados do usuário já autenticado
-    setUserName('usuario_atual')
-    setEmail('email@exemplo.com')
-    // setPreviewUrl('url-da-foto-existente.jpg')
-  }, [])
+  // Busca os dados do perfil e preenche os campos
+  const fetchProfile = async () => {
+    try {
+      const response = await authService.getProfile()
+      const { user } = response
 
+      setUserName(user.userName)
+      setEmail(user.email)
+      // Se quiser mostrar a foto existente:
+      // if (user.profilePicture) setPreviewUrl(user.profilePicture)
+    } catch (error) {
+      console.error('Erro ao carregar perfil:', error)
+    }
+  }
+
+  // Atualiza a foto escolhida e mostra o preview
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
@@ -28,25 +39,31 @@ export const ProfilePage = () => {
       setPreviewUrl(URL.createObjectURL(file))
     }
   }
+  
+const handleSave = async () => {
+  setLoading(true)
 
-  const handleSave = async () => {
-    setLoading(true)
-
-    const formData = new FormData()
-    formData.append('userName', userName)
-    formData.append('email', email)
-    if (password) formData.append('password', password)
-    if (profilePic) formData.append('photo', profilePic)
-
-    try {
-      // await userService.updateProfile(formData)
-      alert('Perfil atualizado com sucesso!')
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error)
-    } finally {
-      setLoading(false)
-    }
+  const updateData: { userName?: string; email?: string; password?: string } = {
+    userName,
+    email,
   }
+  if (password) updateData.password = password
+
+  try {
+    await authService.updateProfile(updateData)
+    alert('Perfil atualizado com sucesso!')
+  } catch (error) {
+    console.error('Erro ao atualizar perfil:', error)
+    alert('Erro ao atualizar perfil')
+  } finally {
+    setLoading(false)
+  }
+}
+
+
+  useEffect(() => {
+    fetchProfile()
+  }, [])
 
   return (
     <Box sx={{ maxWidth: 400, mx: 'auto', mt: 5, p: 3, boxShadow: 3, borderRadius: 2 }}>

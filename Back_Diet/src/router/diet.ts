@@ -57,7 +57,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     const meals = await knex('meals')
       .where({ userId })
       .limit(limitNumber)
-      .orderBy('created_at', 'desc')
+      .orderBy('createdAt', 'desc')
       .offset(offset)
       .select('*')
 

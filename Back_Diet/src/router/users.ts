@@ -46,6 +46,7 @@ export async function usersRoutes(app: FastifyInstance) {
       email,
       password: hashedPassword,
       role,
+      profilePicture: null,
       createdAt: new Date().toISOString().split('T')[0],
     })
 
@@ -81,6 +82,7 @@ export async function usersRoutes(app: FastifyInstance) {
 
     return reply.send({ message: 'login realizado com sucesso ', token })
   })
+  
 
   app.get('/all', { preHandler: [authorizeAdmin] }, async (_request, reply) => {
     const users = await knex('users').select('*')

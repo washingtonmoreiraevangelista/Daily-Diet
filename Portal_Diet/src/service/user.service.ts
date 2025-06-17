@@ -34,7 +34,7 @@ export const authService = {
 
   async updateProfile(data: IUser) {
     try {
-      const response = await environment('/users/update/profile', 'PUT', data)
+      const response = await environment('/profile/update', 'PUT', data)
       return response
     } catch (error) {
       throw new Error('Erro ao atualizar perfil')

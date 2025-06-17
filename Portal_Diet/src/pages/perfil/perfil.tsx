@@ -5,7 +5,6 @@ import {
 import { useState, useEffect } from 'react'
 import { Visibility, VisibilityOff, PhotoCamera } from '@mui/icons-material'
 import { authService } from '../../service/user.service'
-import type { IUser } from '../../@types'
 
 export const ProfilePage = () => {
   const [userName, setUserName] = useState('')

@@ -25,7 +25,7 @@ export const authService = {
 
   async getProfile() {
     try {
-      const response = await environment(`/users/profile`, 'GET')
+      const response = await environment('/profile/user', 'GET')
       return response
     } catch (error) {
       throw new Error('Erro ao buscar perfil')

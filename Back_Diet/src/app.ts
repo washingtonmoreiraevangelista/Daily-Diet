@@ -4,6 +4,7 @@ import { usersRoutes } from './router/users'
 import { registerDiet } from './router/diet'
 import { fastifyJwt } from 'fastify-jwt'
 import cors from '@fastify/cors'
+import { profileRoutes } from './router/profile'
 
 export const app = fastify()
 
@@ -29,4 +30,7 @@ app.register(registerDiet, {
   prefix: '/meals',
 })
 
+app.register(profileRoutes,{
+  prefix: '/profile',
+})
 

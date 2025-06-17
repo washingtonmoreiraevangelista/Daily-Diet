@@ -39,7 +39,18 @@ export const authService = {
     } catch (error) {
       throw new Error('Erro ao atualizar perfil')
     }
+  },
+
+  async uploadProfilePicture(formData: FormData) {
+    try {
+      const response = await environment('/profile/avatar', 'POST', formData)
+      return response
+    } catch (error) {
+      throw new Error('Erro ao fazer upload da imagem de perfil')
+    }
   }
+
+
 
  
 }

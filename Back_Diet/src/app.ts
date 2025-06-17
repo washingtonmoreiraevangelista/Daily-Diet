@@ -5,8 +5,17 @@ import { registerDiet } from './router/diet'
 import { fastifyJwt } from 'fastify-jwt'
 import cors from '@fastify/cors'
 import { profileRoutes } from './router/profile'
+import fastifyStatic from '@fastify/static'
+import path from 'path'
+import fastifyMultipart from '@fastify/multipart'
+
 
 export const app = fastify()
+
+
+app.register(fastifyJwt, {
+  secret: process.env.JWT_SECRET! || '',
+})
 
 // acesso do front para o back
 app.register(cors, {
@@ -16,8 +25,16 @@ app.register(cors, {
   allowedHeaders: ['Content-Type', 'Authorization'],
 })
 
-app.register(fastifyJwt, {
-  secret: process.env.JWT_SECRET! || '',
+
+app.register(fastifyMultipart, {
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB
+  }
+})
+
+app.register(fastifyStatic, {
+  root: path.join(__dirname, '..', 'uploads'),
+  prefix: '/uploads/', 
 })
 
 // app.register(cookie)
@@ -30,7 +47,10 @@ app.register(registerDiet, {
   prefix: '/meals',
 })
 
-app.register(profileRoutes,{
+app.register(profileRoutes, {
   prefix: '/profile',
 })
+
+
+
 

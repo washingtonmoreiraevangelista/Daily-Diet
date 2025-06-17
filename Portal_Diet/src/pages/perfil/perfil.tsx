@@ -53,6 +53,13 @@ export const ProfilePage = () => {
     try {
       await authService.updateProfile(updateData)
 
+      if (profilePic) {
+        const formData = new FormData()
+        formData.append('avatar', profilePic)
+
+        await authService.uploadProfilePicture(formData)
+      }
+
       setSnackbar({
         open: true,
         message: 'Perfil atualizado com sucesso!',
@@ -150,7 +157,7 @@ export const ProfilePage = () => {
         open={snackbar.open}
         autoHideDuration={3000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} 
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
         <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
           {snackbar.message}

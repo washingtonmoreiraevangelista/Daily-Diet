@@ -2,7 +2,7 @@ import type { IUser } from '../@types'
 import { environment } from '../tools/axiosInstance'
 
 export const authService = {
-  
+
   // Registrar um novo usuário
   async register(data: IUser) {
     try {
@@ -48,9 +48,10 @@ export const authService = {
     } catch (error) {
       throw new Error('Erro ao fazer upload da imagem de perfil')
     }
+  },
+
+  getProfilePictureUrl(filename: string) {
+    return `${import.meta.env.VITE_PROJETO_BACK}/uploads/${filename}`
   }
 
-
-
- 
 }

@@ -36,6 +36,8 @@ app.register(fastifyStatic, {
   root: path.join(__dirname, '..', 'uploads'),
   prefix: '/uploads/', 
 })
+console.log('Static files path:', path.join(__dirname, '..', 'uploads'))
+
 
 // app.register(cookie)
 

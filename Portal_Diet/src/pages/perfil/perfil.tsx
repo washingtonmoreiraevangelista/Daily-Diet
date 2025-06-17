@@ -1,41 +1,100 @@
-import {
-  Box, Button, TextField, Avatar, IconButton,
-  Typography, InputAdornment, CircularProgress, Snackbar, Alert
-} from '@mui/material'
 import { useState, useEffect } from 'react'
+import {
+  Box,
+  Button,
+  TextField,
+  Avatar,
+  IconButton,
+  Typography,
+  InputAdornment,
+  CircularProgress,
+  Snackbar,
+  Alert
+} from '@mui/material'
 import { Visibility, VisibilityOff, PhotoCamera } from '@mui/icons-material'
-import { authService } from '../../service/user.service'
 import { useNavigate } from 'react-router'
+import { authService } from '../../service/user.service'
 
 export const ProfilePage = () => {
-  const [userName, setUserName] = useState('')
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
+  const [userData, setUserData] = useState({
+    userName: '',
+    email: '',
+    password: ''
+  })
   const [showPassword, setShowPassword] = useState(false)
   const [profilePic, setProfilePic] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [snackbar, setSnackbar] = useState<{ open: boolean, message: string, severity: 'success' | 'error' }>({
+  const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
-    severity: 'success'
+    severity: 'success' as 'success' | 'error'
   })
   const navigate = useNavigate()
 
-  const fetchProfile = async () => {
-    try {
-      const response = await authService.getProfile()
-      const { user } = response
-      setUserName(user.userName)
-      setEmail(user.email)
-    } catch (error) {
-      console.error('Erro ao carregar perfil:', error)
+  // Carrega os dados do perfil ao montar o componente
+  useEffect(() => {
+    const loadProfile = async () => {
+      setLoading(true)
+      try {
+        const response = await authService.getProfile()
+        setUserData({
+          userName: response.user.userName,
+          email: response.user.email,
+          password: ''
+        })
+
+        // Se existir foto de perfil, carrega a URL
+        if (response.user.profilePicture) {
+          const url = await authService.getProfilePictureUrl(response.user.profilePicture)
+          setCurrentAvatarUrl(url)
+        }
+      } catch (error: any) {
+        setSnackbar({
+          open: true,
+          message: error.message,
+          severity: 'error'
+        })
+      } finally {
+        setLoading(false)
+      }
     }
-  }
+
+    loadProfile()
+  }, [])
+
+  // Limpa o objeto URL quando o componente desmontar
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
+      // Validações
+      if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setSnackbar({
+          open: true,
+          message: 'Tipo de arquivo não suportado. Use JPEG, PNG ou WEBP.',
+          severity: 'error'
+        })
+        return
+      }
+
+      if (file.size > 5 * 1024 * 1024) {
+        setSnackbar({
+          open: true,
+          message: 'Arquivo muito grande. Tamanho máximo: 5MB.',
+          severity: 'error'
+        })
+        return
+      }
+
       setProfilePic(file)
       setPreviewUrl(URL.createObjectURL(file))
     }
@@ -44,20 +103,27 @@ export const ProfilePage = () => {
   const handleSave = async () => {
     setLoading(true)
 
-    const updateData: { userName?: string; email?: string; password?: string } = {
-      userName,
-      email,
-    }
-    if (password) updateData.password = password
-
     try {
-      await authService.updateProfile(updateData)
+      // Atualiza dados básicos do perfil
+      await authService.updateProfile({
+        userName: userData.userName,
+        email: userData.email,
+        ...(userData.password && { password: userData.password })
+      })
 
+      // Se houver nova foto, faz upload
       if (profilePic) {
         const formData = new FormData()
-        formData.append('avatar', profilePic)
+        formData.append('file', profilePic)
 
-        await authService.uploadProfilePicture(formData)
+        const uploadResponse = await authService.uploadProfilePicture(formData)
+
+        // Atualiza a URL da foto
+        if (uploadResponse.filename) {
+          const newUrl = await authService.getProfilePictureUrl(uploadResponse.filename)
+          setCurrentAvatarUrl(newUrl)
+          setPreviewUrl(null) // Limpa o preview
+        }
       }
 
       setSnackbar({
@@ -66,15 +132,11 @@ export const ProfilePage = () => {
         severity: 'success'
       })
 
-      setTimeout(() => {
-        navigate('/homePage')
-      }, 1500)
-
-    } catch (error) {
-      console.error('Erro ao atualizar perfil:', error)
+      setTimeout(() => navigate('/homePage'), 1500)
+    } catch (error: any) {
       setSnackbar({
         open: true,
-        message: 'Erro ao atualizar perfil',
+        message: error.message,
         severity: 'error'
       })
     } finally {
@@ -82,88 +144,105 @@ export const ProfilePage = () => {
     }
   }
 
-  useEffect(() => {
-    fetchProfile()
-  }, [])
-
   return (
-    <>
-      <Box sx={{ maxWidth: 400, mx: 'auto', mt: 5, p: 3, boxShadow: 3, borderRadius: 2 }}>
-        <Typography variant="h5" mb={3} textAlign="center">Meu Perfil</Typography>
+    <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 3, boxShadow: 3, borderRadius: 2 }}>
+      <Typography variant="h5" gutterBottom textAlign="center">
+        Meu Perfil
+      </Typography>
 
-        <Box textAlign="center" mb={3}>
-          <Avatar
-            src={previewUrl || undefined}
-            sx={{ width: 100, height: 100, margin: '0 auto' }}
-          />
-          <input
-            accept="image/*"
-            type="file"
-            id="upload-photo"
-            style={{ display: 'none' }}
-            onChange={handlePhotoChange}
-          />
-          <label htmlFor="upload-photo">
-            <IconButton component="span" color="primary">
-              <PhotoCamera />
-            </IconButton>
-          </label>
-        </Box>
-
-        <TextField
-          fullWidth
-          label="Usuário"
-          value={userName}
-          onChange={(e) => setUserName(e.target.value)}
-          margin="normal"
+      {/* Seção da Foto de Perfil */}
+      <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
+        <Avatar
+          src={previewUrl || currentAvatarUrl || undefined}
+          sx={{ width: 120, height: 120, mb: 2 }}
         />
-        <TextField
-          fullWidth
-          label="E-mail"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          margin="normal"
-        />
-        <TextField
-          fullWidth
-          label="Senha"
-          type={showPassword ? 'text' : 'password'}
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          margin="normal"
-          InputProps={{
-            endAdornment: (
-              <InputAdornment position="end">
-                <IconButton onClick={() => setShowPassword(!showPassword)}>
-                  {showPassword ? <VisibilityOff /> : <Visibility />}
-                </IconButton>
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <Button
-          variant="contained"
-          fullWidth
-          sx={{ mt: 3 }}
-          onClick={handleSave}
+        <input
+          accept="image/jpeg, image/png, image/webp"
+          id="profile-photo-upload"
+          type="file"
+          style={{ display: 'none' }}
+          onChange={handlePhotoChange}
           disabled={loading}
-        >
-          {loading ? <CircularProgress size={24} /> : 'Salvar Alterações'}
-        </Button>
+        />
+        <label htmlFor="profile-photo-upload">
+          <Button
+            variant="outlined"
+            component="span"
+            startIcon={<PhotoCamera />}
+            disabled={loading}
+          >
+            Alterar Foto
+          </Button>
+        </label>
+        <Typography variant="caption" color="text.secondary" mt={1}>
+          Formatos: JPEG, PNG, WEBP (max. 5MB)
+        </Typography>
       </Box>
 
+      {/* Formulário de Dados */}
+      <TextField
+        fullWidth
+        label="Nome de Usuário"
+        margin="normal"
+        value={userData.userName}
+        onChange={(e) => setUserData({ ...userData, userName: e.target.value })}
+        disabled={loading}
+      />
+      <TextField
+        fullWidth
+        label="Email"
+        margin="normal"
+        type="email"
+        value={userData.email}
+        onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+        disabled={loading}
+      />
+      <TextField
+        fullWidth
+        label="Nova Senha (deixe em branco para manter a atual)"
+        margin="normal"
+        type={showPassword ? 'text' : 'password'}
+        value={userData.password}
+        onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+        disabled={loading}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <IconButton
+                onClick={() => setShowPassword(!showPassword)}
+                edge="end"
+                disabled={loading}
+              >
+                {showPassword ? <VisibilityOff /> : <Visibility />}
+              </IconButton>
+            </InputAdornment>
+          ),
+        }}
+      />
+
+      <Button
+        fullWidth
+        variant="contained"
+        sx={{ mt: 3 }}
+        onClick={handleSave}
+        disabled={loading}
+      >
+        {loading ? <CircularProgress size={24} /> : 'Salvar Alterações'}
+      </Button>
+
+      {/* Snackbar para feedback */}
       <Snackbar
         open={snackbar.open}
-        autoHideDuration={3000}
+        autoHideDuration={6000}
         onClose={() => setSnackbar({ ...snackbar, open: false })}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
       >
-        <Alert severity={snackbar.severity} sx={{ width: '100%' }}>
+        <Alert
+          severity={snackbar.severity}
+          onClose={() => setSnackbar({ ...snackbar, open: false })}
+        >
           {snackbar.message}
         </Alert>
       </Snackbar>
-
-    </>
+    </Box>
   )
 }

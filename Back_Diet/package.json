@@ -14,6 +14,8 @@
     "i": "^0.3.7",
     "knex": "^3.1.0",
     "pg": "^8.16.0",
+    "react-router-dom": "^7.6.2",
+    "resend": "^4.6.0",
     "save": "^2.9.0",
     "sqlite3": "^5.1.7",
     "zod": "^3.25.48"
@@ -38,6 +40,7 @@
     "@types/knex": "^0.15.2",
     "@types/node": "^22.15.29",
     "@types/pg": "^8.15.4",
+    "@types/react-router-dom": "^5.3.3",
     "ts-node": "^10.9.2",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3"

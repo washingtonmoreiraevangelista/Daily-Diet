@@ -13,6 +13,9 @@ import {
 import { LogIn, Eye, EyeOff } from "lucide-react"
 import { authService } from "../../service/user.service"
 import { useNavigate } from 'react-router'
+import { Link as RouterLink } from 'react-router'
+
+
 
 export const LoginForm = () => {
   const [userName, setuserName] = useState("")
@@ -23,7 +26,7 @@ export const LoginForm = () => {
   const [error, setError] = useState("")
   const navigate = useNavigate()
 
-    useEffect(() => {
+  useEffect(() => {
     if (userName) {
       localStorage.setItem("loginName", userName)
     } else {
@@ -142,11 +145,9 @@ export const LoginForm = () => {
         }}
       >
         <Link
-          component="button"
+          component={RouterLink}
+          to="/forgot-password"
           variant="body2"
-          onClick={() =>
-            alert("Funcionalidade de recuperação de senha ainda não implementada.")
-          }
           sx={{ cursor: "pointer" }}
         >
           Esqueci a senha

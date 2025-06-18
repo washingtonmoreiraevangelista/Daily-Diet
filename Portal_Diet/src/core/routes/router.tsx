@@ -4,12 +4,16 @@ import { PrivateLayout } from '../layout'
 import { HomePage } from '../../pages/home/HomePage'
 import { LoginRegisterSplit } from '../../pages/login/LoginRegister'
 import { ProfilePage } from '../../pages/perfil/perfil'
+import { ForgotPassword } from '../../pages/forgotPassword/forgotPassword'
+import { ResetPassword } from '../../pages/forgotPassword/resetPassword'
 
 export const AppRouter = () => (
   <BrowserRouter>
     <Routes>
        {/* Página pública */}
       <Route path="/" element={<LoginRegisterSplit />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
 
       {/* Rotas privadas */}

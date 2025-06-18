@@ -102,6 +102,7 @@ export async function profileRoutes(app: FastifyInstance) {
       ).replace(/^_+|_+$/g, '') // Remove underscores no início/fim
     }
 
+
     const cleanFilename = sanitizeFilename(filePart.filename)
     // gera nome único
     const filename = `${Date.now()}-${cleanFilename}`
@@ -119,9 +120,5 @@ export async function profileRoutes(app: FastifyInstance) {
     return reply.code(200).send({ message: 'Foto atualizada com sucesso', filename, filepath })
 
   })
-
-
-
-
 
 }

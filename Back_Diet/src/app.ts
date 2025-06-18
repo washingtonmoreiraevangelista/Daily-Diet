@@ -8,6 +8,7 @@ import { profileRoutes } from './router/profile'
 import fastifyStatic from '@fastify/static'
 import path from 'path'
 import fastifyMultipart from '@fastify/multipart'
+import { forgotPasswordRoutes } from './router/forgotPassword'
 
 
 export const app = fastify()
@@ -35,7 +36,6 @@ app.register(fastifyStatic, {
   root: path.join(__dirname,'..', 'uploads'),
   prefix: '/uploads/',
 })
-console.log(`FastifyStatic registrado: /uploads/ -> ${path.join(__dirname, '..', 'uploads')}`)
 
 // app.register(cookie)
 
@@ -51,6 +51,9 @@ app.register(profileRoutes, {
   prefix: '/profile',
 })
 
+app.register(forgotPasswordRoutes,{
+  prefix: '/forgot-password',
+})
 
 
 

@@ -12,8 +12,9 @@ import {
   Alert
 } from '@mui/material'
 import { Visibility, VisibilityOff, PhotoCamera } from '@mui/icons-material'
-import { useNavigate } from 'react-router'
+import { useNavigate, Link as RouterLink } from 'react-router'
 import { authService } from '../../service/user.service'
+import { ArrowLeft } from 'lucide-react'
 
 export const ProfilePage = () => {
   const [userData, setUserData] = useState({
@@ -226,6 +227,16 @@ export const ProfilePage = () => {
         disabled={loading}
       >
         {loading ? <CircularProgress size={24} /> : 'Salvar Alterações'}
+      </Button>
+      
+      <Button
+        component={RouterLink}
+        to="/homePage"
+        variant="text"
+        startIcon={<ArrowLeft size={20} />}
+        fullWidth
+      >
+        Voltar ao início
       </Button>
 
       {/* Snackbar para feedback */}

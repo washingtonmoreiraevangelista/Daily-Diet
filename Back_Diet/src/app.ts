@@ -12,7 +12,6 @@ import fastifyMultipart from '@fastify/multipart'
 
 export const app = fastify()
 
-
 app.register(fastifyJwt, {
   secret: process.env.JWT_SECRET! || '',
 })
@@ -28,16 +27,15 @@ app.register(cors, {
 
 app.register(fastifyMultipart, {
   limits: {
-    fileSize: 5 * 1024 * 1024, // 5MB
+    fileSize: 5 * 1024 * 1024, 
   }
 })
 
 app.register(fastifyStatic, {
-  root: path.join(__dirname, '..', 'uploads'),
-  prefix: '/uploads/', 
+  root: path.join(__dirname,'..', 'uploads'),
+  prefix: '/uploads/',
 })
-console.log('Static files path:', path.join(__dirname, '..', 'uploads'))
-
+console.log(`FastifyStatic registrado: /uploads/ -> ${path.join(__dirname, '..', 'uploads')}`)
 
 // app.register(cookie)
 

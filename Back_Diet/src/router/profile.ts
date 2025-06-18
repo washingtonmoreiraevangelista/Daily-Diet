@@ -77,28 +77,30 @@ export async function profileRoutes(app: FastifyInstance) {
     }
 
     // Cria o diretório de upload se não existir
-    const uploadDir = path.resolve(__dirname, '..', 'uploads')
-    if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true })
+    const uploadDir = path.resolve(__dirname, '..', '..', 'uploads')
+    if (!fs.existsSync(uploadDir))
+      fs.mkdirSync(uploadDir,
+        { recursive: true })
 
     // Gera nome único para o arquivo
- function sanitizeFilename(filename: string): string {
-  // Extrai a extensão do arquivo
-  const ext = filename.split('.').pop() || '';
-  const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.'));
-  
-  return (
-    nameWithoutExt
-      .normalize('NFD') // Normaliza caracteres Unicode
-      .replace(/[\u0300-\u036f]/g, '') // Remove acentos
-      .replace(/\s+/g, '_') // Substitui espaços por _
-      .replace(/[^\w-]/g, '') // Remove caracteres especiais exceto _ e -
-      .replace(/_+/g, '_') // Remove underscores repetidos
-      .replace(/-+/g, '-') // Remove hífens repetidos
-      .toLowerCase() // Converte para minúsculas
-      .substring(0, 8) // Limita o tamanho
-    + '.' + ext.toLowerCase() // Adiciona a extensão
-  ).replace(/^_+|_+$/g, ''); // Remove underscores no início/fim
-}
+    function sanitizeFilename(filename: string): string {
+      // Extrai a extensão do arquivo
+      const ext = filename.split('.').pop() || ''
+      const nameWithoutExt = filename.substring(0, filename.lastIndexOf('.'))
+
+      return (
+        nameWithoutExt
+          .normalize('NFD') // Normaliza caracteres Unicode
+          .replace(/[\u0300-\u036f]/g, '') // Remove acentos
+          .replace(/\s+/g, '_') // Substitui espaços por _
+          .replace(/[^\w-]/g, '') // Remove caracteres especiais exceto _ e -
+          .replace(/_+/g, '_') // Remove underscores repetidos
+          .replace(/-+/g, '-') // Remove hífens repetidos
+          .toLowerCase() // Converte para minúsculas
+          .substring(0, 8) // Limita o tamanho
+        + '.' + ext.toLowerCase() // Adiciona a extensão
+      ).replace(/^_+|_+$/g, '') // Remove underscores no início/fim
+    }
 
     const cleanFilename = sanitizeFilename(filePart.filename)
     // gera nome único

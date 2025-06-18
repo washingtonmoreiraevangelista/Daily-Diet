@@ -150,7 +150,6 @@ export const ProfilePage = () => {
         Meu Perfil
       </Typography>
 
-      {/* Seção da Foto de Perfil */}
       <Box display="flex" flexDirection="column" alignItems="center" mb={3}>
         <Avatar
           src={previewUrl || currentAvatarUrl || undefined}
@@ -179,7 +178,6 @@ export const ProfilePage = () => {
         </Typography>
       </Box>
 
-      {/* Formulário de Dados */}
       <TextField
         fullWidth
         label="Nome de Usuário"

@@ -10,7 +10,7 @@ dotenv.config()
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 export function forgotPasswordRoutes(app: FastifyInstance) {
-    app.addHook('preHandler', async (request) => {
+  app.addHook('preHandler', async (request) => {
     console.log(`[${request.method}] ${request.url}`)
   })
 
@@ -47,11 +47,11 @@ export function forgotPasswordRoutes(app: FastifyInstance) {
     })
 
     // Define a URL base do frontend (pode vir do .env ou padrão localhost)
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173/reset-password/:token'
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:5173'
 
     // Monta o link completo para a página de redefinição de senha com o token
     const resetLink = `${frontendUrl}/reset-password?token=${token}`
-
+    console.log(resetLink)
     try {
       // Envia um e-mail de redefinição de senha com o link gerado
       await resend.emails.send({
@@ -75,36 +75,36 @@ export function forgotPasswordRoutes(app: FastifyInstance) {
 
 
   app.post('/reset', async (request, reply) => {
- // Extrai o token e a nova senha enviados no corpo da requisição
-  const { token, newPassword } = request.body as { token: string, newPassword: string }
+    // Extrai o token e a nova senha enviados no corpo da requisição
+    const { token, newPassword } = request.body as { token: string, newPassword: string }
 
-  // Busca o registro de reset no banco pelo token e verifica se ele ainda é válido (não expirado)
-  const reset = await knex('passwordReset')
-    .where({ token })
-    .andWhere('expires_at', '>', new Date()) // token ainda está válido (não expirou)
-    .first()
+    // Busca o registro de reset no banco pelo token e verifica se ele ainda é válido (não expirado)
+    const reset = await knex('passwordReset')
+      .where({ token })
+      .andWhere('expires_at', '>', new Date()) // token ainda está válido (não expirou)
+      .first()
 
-  // Se o token não for encontrado ou estiver expirado, retorna erro 400
-  if (!reset) {
-    return reply.code(400).send({ message: 'Token inválido ou expirado' })
-  }
+    // Se o token não for encontrado ou estiver expirado, retorna erro 400
+    if (!reset) {
+      return reply.code(400).send({ message: 'Token inválido ou expirado' })
+    }
 
-  // Criptografa a nova senha usando bcrypt (8 rounds de salt)
-  const hashedPassword = await bcrypt.hash(newPassword, 8)
+    // Criptografa a nova senha usando bcrypt (8 rounds de salt)
+    const hashedPassword = await bcrypt.hash(newPassword, 8)
 
-  // Atualiza a senha do usuário no banco, procurando pelo e-mail registrado no reset
-  await knex('users')
-    .where({ id: reset.userId }) 
-    .update({ password: hashedPassword })
+    // Atualiza a senha do usuário no banco, procurando pelo e-mail registrado no reset
+    await knex('users')
+      .where({ id: reset.userId })
+      .update({ password: hashedPassword })
 
-  // Remove o token usado da tabela para impedir reutilização
-  await knex('passwordReset')
-    .where({ token })
-    .del()
+    // Remove o token usado da tabela para impedir reutilização
+    await knex('passwordReset')
+      .where({ token })
+      .del()
 
-  // Retorna mensagem de sucesso ao cliente
-  return reply.send({ message: 'Senha redefinida com sucesso' })
-})
+    // Retorna mensagem de sucesso ao cliente
+    return reply.send({ message: 'Senha redefinida com sucesso' })
+  })
 
 
 }

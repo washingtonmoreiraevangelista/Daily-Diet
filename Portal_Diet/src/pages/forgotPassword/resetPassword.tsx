@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   Box,
   Button,
@@ -68,6 +68,13 @@ export const ResetPassword = () => {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    if (!token) {
+      showMessage("Token inválido ou ausente. Por favor, utilize o link enviado por e-mail.", "error")
+      setTimeout(() => navigate('/forgot-password'), 3000)
+    }
+  }, [token])
 
   return (
     <Box

@@ -63,18 +63,18 @@ export const LoginForm = () => {
       sx={{
         maxWidth: 360,
         mx: "auto",
+        mt: 6,
         p: 4,
-        bgcolor: "rgba(255,255,255,0.1)",
-        borderRadius: 2,
+        borderRadius: 3,
         boxShadow: 3,
-        backdropFilter: "blur(20px)",
+        bgcolor: "rgba(255,255,255,0.1)",
         display: "flex",
         flexDirection: "column",
         gap: 2,
       }}
     >
-      <Typography variant="h4" textAlign="center" gutterBottom>
-        Bem Nutrido
+      <Typography variant="h5" textAlign="center" gutterBottom>
+        Conecte-se
       </Typography>
 
       {error && (
@@ -165,10 +165,7 @@ export const LoginForm = () => {
           gap: 1,
           py: 1.5,
           borderRadius: 3,
-          background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
-          "&:hover": {
-            background: "linear-gradient(90deg, #2563eb, #7c3aed)",
-          },
+          bgcolor: " #2f855a",
         }}
       >
         {isLoading ? (

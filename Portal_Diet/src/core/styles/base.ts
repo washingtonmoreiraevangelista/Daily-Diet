@@ -4,13 +4,18 @@ const theme = responsiveFontSizes(
   createTheme({
     palette: {
       primary: {
-        main: '#256d64',      
+        main: '#256d64',
         contrastText: '#FFF',
       },
       secondary: {
-        main: '#ecfcf4',
-        contrastText: '#FFF',
+        main: '#ecfcf4',      // verde claro
+        contrastText: '#000',
       },
+
+      // secondary: {
+      //   main: '#ecfcf4',
+      //   contrastText: '#FFF',
+      // },
       success: {
         main: '#639B48',
         contrastText: '#FFF',

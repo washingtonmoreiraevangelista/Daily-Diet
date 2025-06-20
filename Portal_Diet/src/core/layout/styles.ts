@@ -9,13 +9,17 @@ export const BoxWrapper = styled(Box)<BoxProps>({
 })
 
 export const BoxHeader = styled(Box)<BoxProps>(({ theme }) => ({
+  position: 'fixed',            
+  top: 0,
+  left: 0,
+  right: 0,
   width: '100%',
   display: 'flex',
   flexDirection: 'row',
   background: theme.palette.primary.main,
   borderBottom: 'solid 1px #e2e2e2',
   height: '56px',
-  zIndex: 0,
+  zIndex: theme.zIndex.appBar,  
   paddingInline: theme.spacing(2),
 }))
 

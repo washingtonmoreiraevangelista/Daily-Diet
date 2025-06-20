@@ -106,6 +106,7 @@ export const HomePage = () => {
   }
 
 
+
   const resetFormAndClose = () => {
     setModalOpen(false)
     setNewMeal({
@@ -166,7 +167,7 @@ export const HomePage = () => {
           <Box mt={6}>
             <DashboardStats />
           </Box>
-          
+
         </Container>
 
         <Box

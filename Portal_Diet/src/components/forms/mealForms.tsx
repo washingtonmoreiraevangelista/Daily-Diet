@@ -63,12 +63,13 @@ export const MealForm = ({ newMeal, onChange }: Props) => {
         <FormControlLabel
           control={
             <Checkbox
-              checked={newMeal.isDiet}
+              checked={newMeal.isDiet === 'sim'}
               onChange={e => onChange('isDiet', e.target.checked)}
             />
           }
           label="Dentro da dieta"
         />
+
       </Stack>
     </Box>
   )

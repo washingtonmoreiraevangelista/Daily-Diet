@@ -160,11 +160,7 @@ export const RegisterForm = () => {
           fontWeight: "medium",
           textTransform: "none",
           borderRadius: 3,
-          background: "linear-gradient(90deg, #3b82f6, #8b5cf6)",
-          color: "#fff",
-          "&:hover": {
-            background: "linear-gradient(90deg, #2563eb, #7c3aed)",
-          },
+          bgcolor: " #2f855a",
         }}
       >
         {isLoading ? "Criando conta..." : "Criar conta"}

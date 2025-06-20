@@ -181,7 +181,7 @@ export const ProfilePage = () => {
 
       <TextField
         fullWidth
-        label="Nome de Usuário"
+        label="Usuário"
         margin="normal"
         value={userData.userName}
         onChange={(e) => setUserData({ ...userData, userName: e.target.value })}

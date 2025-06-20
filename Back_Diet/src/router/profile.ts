@@ -4,6 +4,8 @@ import { knex } from '../dataBase'
 import fs from 'fs'
 import path from 'path'
 import { pipeline } from 'stream/promises'
+import bcrypt from 'bcrypt'
+
 
 
 export async function profileRoutes(app: FastifyInstance) {
@@ -44,17 +46,19 @@ export async function profileRoutes(app: FastifyInstance) {
       password: string,
     }
 
+    // Gerar o hash da senha
+    const hashedPassword = await bcrypt.hash(password, 10)
     await knex('users')
       .where({ id: userId })
       .update({
         userName,
         email,
-        password,
+        password: hashedPassword,
       })
 
     return reply.code(200).send({ message: 'User updated successfully!' })
-
   })
+
 
   app.post('/avatar', { preHandler: [authenticate] }, async (request, reply) => {
     const parts = request.parts()

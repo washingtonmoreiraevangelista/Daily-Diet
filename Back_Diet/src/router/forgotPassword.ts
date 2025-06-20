@@ -2,7 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { knex } from '../dataBase'
 import { Resend } from 'resend'
 import dotenv from "dotenv"
-import crypto from 'crypto'
+import { randomUUID } from 'crypto'
 import bcrypt from 'bcrypt'
 
 dotenv.config()
@@ -34,13 +34,13 @@ export function forgotPasswordRoutes(app: FastifyInstance) {
     }
 
     // Gera um token aleatório (UUID) para a redefinição de senha
-    const token = crypto.randomUUID()
+    const token = randomUUID()
 
-    // Define o tempo de expiração do token (1 hora a partir de agora)
-    const expiresAt = new Date(Date.now() + 3600000) // 3600000ms = 1h
+    // Define o tempo de expiração do token (10 minutos)
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000)
 
-    // Salva o token, ID do usuário e data de expiração na tabela `passwordReset`
-    await knex('passwordReset').insert({
+    // Salva o token, ID do usuário e data de expiração na tabela `password_resets`
+    await knex('password_resets').insert({
       userId: user.id,
       token,
       expires_at: expiresAt,
@@ -58,53 +58,59 @@ export function forgotPasswordRoutes(app: FastifyInstance) {
         from: 'Meu App <onboarding@resend.dev>', // remetente
         to: email, // destinatário (o usuário)
         subject: 'Redefinição de Senha',
-        html: `<p>Olá,</p>
+        html: `<p>Olá,${user.userName}</p>
              <p>Para redefinir sua senha, clique no link abaixo:</p>
              <p><a href="${resetLink}">Redefinir Senha</a></p>
-             <p>Este link expira em 1 hora.</p>`
+             <p>Este link expira em 10 minutos.</p>`
       })
     } catch (error) {
       // Se der erro ao enviar o e-mail, exibe no console e retorna erro 500
-      console.error('Erro ao enviar e-mail:', error)
-      return reply.code(500).send({ error: 'Erro ao enviar e-mail de redefinição' })
+      console.error('Error sending email:', error)
+      return reply.code(500).send({ error: 'Error sending reset email' })
     }
 
     // Se tudo correr bem, responde informando que o e-mail foi enviado
-    return reply.send({ message: 'E-mail de redefinição enviado' })
+    return reply.send({ message: 'Reset email sent' })
   })
 
 
   app.post('/reset', async (request, reply) => {
-    // Extrai o token e a nova senha enviados no corpo da requisição
     const { token, newPassword } = request.body as { token: string, newPassword: string }
 
-    // Busca o registro de reset no banco pelo token e verifica se ele ainda é válido (não expirado)
-    const reset = await knex('passwordReset')
-      .where({ token })
-      .andWhere('expires_at', '>', new Date()) // token ainda está válido (não expirou)
-      .first()
-
-    // Se o token não for encontrado ou estiver expirado, retorna erro 400
-    if (!reset) {
-      return reply.code(400).send({ message: 'Token inválido ou expirado' })
+    if (!token || !newPassword) {
+      return reply.code(400).send({ message: 'Token and new password are required' })
     }
 
-    // Criptografa a nova senha usando bcrypt (8 rounds de salt)
+    console.log("Token recebido:", token)
+
+    const reset = await knex('password_resets')
+      .where({ token })
+      .andWhere('expires_at', '>', new Date())
+      .first()
+      
+    console.log("Reset encontrado:", reset)
+
+    const allResets = await knex('password_resets').select()
+    console.log('Todos os resets:', allResets)
+
+
+    if (!reset) {
+      return reply.code(400).send({ message: 'Invalid or expired token' })
+    }
+
     const hashedPassword = await bcrypt.hash(newPassword, 8)
 
-    // Atualiza a senha do usuário no banco, procurando pelo e-mail registrado no reset
     await knex('users')
       .where({ id: reset.userId })
       .update({ password: hashedPassword })
 
-    // Remove o token usado da tabela para impedir reutilização
-    await knex('passwordReset')
+    await knex('password_resets')
       .where({ token })
       .del()
 
-    // Retorna mensagem de sucesso ao cliente
-    return reply.send({ message: 'Senha redefinida com sucesso' })
+    return reply.send({ message: 'Password reset successfully' })
   })
+
 
 
 }

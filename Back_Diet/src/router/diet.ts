@@ -35,7 +35,7 @@ export const registerDiet = async (app: FastifyInstance) => {
 
     await knex('meals').insert(meal)
 
-    return reply.code(201).send('Dieta cadastrada com sucesso!')
+    return reply.code(201).send('Diet registered successfully!')
   })
 
   app.get('/all', { preHandler: [authenticate] }, async (request, reply) => {
@@ -47,7 +47,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     const limitNumber = parseInt(limit)
 
     if (isNaN(pageNumber) || isNaN(limitNumber) || pageNumber < 1 || limitNumber < 1) {
-      return reply.code(400).send({ message: 'Parâmetros page e limit inválidos' })
+      return reply.code(400).send({ message: 'Invalid page and limit parameters' })
     }
 
     const offset = (pageNumber - 1) * limitNumber
@@ -100,7 +100,7 @@ export const registerDiet = async (app: FastifyInstance) => {
     }
 
     if (!id) {
-      return reply.code(400).send({ mesage: 'Id não encontrado!' })
+      return reply.code(400).send({ mesage: 'Id not found!' })
     }
 
     await knex('meals')
@@ -113,7 +113,7 @@ export const registerDiet = async (app: FastifyInstance) => {
         isDiet,
       })
 
-    return reply.code(200).send({ message: 'Dieta atualizada com sucesso!' })
+    return reply.code(200).send({ message: 'Diet successfully updated!' })
 
   })
 
@@ -127,10 +127,10 @@ export const registerDiet = async (app: FastifyInstance) => {
       .del()
 
     if (!diet) {
-      return reply.code(400).send({ message: 'Dieta não encontrada ou não pertence ao usuário!' })
+      return reply.code(400).send({ message: 'Diet not found or does not belong to the user!' })
     }
 
-    return reply.code(200).send({ message: 'Dieta deletada com sucesso!' })
+    return reply.code(200).send({ message: 'Diet successfully deleted!' })
   })
 
 

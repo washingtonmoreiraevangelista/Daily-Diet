@@ -52,7 +52,7 @@ export async function profileRoutes(app: FastifyInstance) {
         password,
       })
 
-    return reply.code(200).send({ message: 'Usuário atualizado com sucesso!' })
+    return reply.code(200).send({ message: 'User updated successfully!' })
 
   })
 
@@ -68,12 +68,12 @@ export async function profileRoutes(app: FastifyInstance) {
     }
 
     if (!filePart) {
-      return reply.code(400).send({ message: 'Nenhum arquivo enviado' })
+      return reply.code(400).send({ message: 'No files sent' })
     }
 
     // Limita tipos de arquivo
     if (!['image/jpeg', 'image/png', 'image/webp'].includes(filePart.mimetype)) {
-      return reply.status(400).send({ message: 'Tipo de arquivo não suportado' })
+      return reply.status(400).send({ message: 'Unsupported file type' })
     }
 
     // Cria o diretório de upload se não existir
@@ -117,7 +117,7 @@ export async function profileRoutes(app: FastifyInstance) {
       .where({ id: (request.user as { sub: string }).sub })
       .update({ profilePicture: filename })
 
-    return reply.code(200).send({ message: 'Foto atualizada com sucesso', filename, filepath })
+    return reply.code(200).send({ message: 'Photo updated successfully', filename, filepath })
 
   })
 

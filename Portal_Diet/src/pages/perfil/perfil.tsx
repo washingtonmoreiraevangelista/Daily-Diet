@@ -133,7 +133,7 @@ export const ProfilePage = () => {
         severity: 'success'
       })
 
-      setTimeout(() => navigate('/homePage'), 1500)
+      setTimeout(() => navigate('/homePage'), 2000)
     } catch (error: any) {
       setSnackbar({
         open: true,

@@ -15,26 +15,31 @@ import PersonIcon from "@mui/icons-material/Person"
 import PersonAddIcon from "@mui/icons-material/PersonAdd"
 import { LoginForm } from './login'
 import { RegisterForm } from './registre'
-import Diet from '../../assets/diet.png'
 
 export const LoginRegisterSplit = () => {
   const theme = useTheme()
+  
   const isMobile = useMediaQuery(theme.breakpoints.down('md'))
   const [tab, setTab] = useState(0)
 
   return (
     <Box
-      sx={{
-        width: "100vw",
-        height: "100vh",
-        overflowX: "hidden",
-        position: "fixed",
-        top: 0,
-        left: 0,
-        backgroundImage: `url(${Diet})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
+  sx={{
+    width: "100vw",
+    height: "100vh",
+    overflowX: "hidden",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    background: "linear-gradient(-45deg, #3b82f6, #8b5cf6,rgb(152, 123, 231),rgb(22, 203, 249))",
+    backgroundSize: "400% 400%",
+    animation: "gradientMove 15s ease infinite",
+    "@keyframes gradientMove": {
+      "0%": { backgroundPosition: "0% 50%" },
+      "50%": { backgroundPosition: "100% 50%" },
+      "100%": { backgroundPosition: "0% 50%" },
+    },
+  }}
     >
       <Box
         sx={{
@@ -74,7 +79,7 @@ export const LoginRegisterSplit = () => {
           py: 0,
           zIndex: 10,
         }}
-      >
+       >
         <CardHeader
           sx={{ textAlign: "center", pt: 2, pb: 1 }}
           title={

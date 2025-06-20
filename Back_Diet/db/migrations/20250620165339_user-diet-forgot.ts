@@ -22,7 +22,7 @@ export async function up(knex: Knex): Promise<void> {
     table.timestamp('createdAt').defaultTo(knex.fn.now()).notNullable()
   })
 
-  await knex.schema.createTable('passwordReset', (table) => {
+  await knex.schema.createTable('password_resets', (table) => {
     table.uuid('id').primary()
     table.uuid('userId').notNullable()
     table.text('token').notNullable()

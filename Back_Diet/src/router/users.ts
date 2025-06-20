@@ -27,13 +27,13 @@ export async function usersRoutes(app: FastifyInstance) {
       .first()
 
     if (existingUser) {
-      return reply.code(400).send({ message: 'Usuário ou e-mail já cadastrado.' })
+      return reply.code(400).send({ message: 'User or email already registered.' })
     }
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/
 
     if (!passwordRegex.test(password)) {
       return reply.code(400).send({
-        error: 'A senha deve conter pelo menos 8 caracteres, incluindo letras e números.',
+        error: 'Password must contain at least 8 characters, including letters and numbers.',
       })
     }
 
@@ -52,7 +52,7 @@ export async function usersRoutes(app: FastifyInstance) {
 
     const token = app.jwt.sign({}, { sub: userId, expiresIn: '1d' })
 
-    return reply.code(201).send({ message: 'Usuário criado com sucesso!', token })
+    return reply.code(201).send({ message: 'User created successfully!', token })
   })
 
 
@@ -69,7 +69,7 @@ export async function usersRoutes(app: FastifyInstance) {
       .first()
 
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return reply.code(401).send({ error: 'Credenciais inválidas' })
+      return reply.code(401).send({ error: 'Invalid credentials' })
     }
 
     const token = app.jwt.sign(
@@ -80,7 +80,7 @@ export async function usersRoutes(app: FastifyInstance) {
       { expiresIn: '1d' }
     )
 
-    return reply.send({ message: 'login realizado com sucesso ', token })
+    return reply.send({ message: 'login successful ', token })
   })
   
 

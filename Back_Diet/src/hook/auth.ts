@@ -4,8 +4,8 @@ import { FastifyReply, FastifyRequest } from 'fastify'
 export async function authenticate(request: FastifyRequest, reply: FastifyReply) {
   try {
     await request.jwtVerify()
-  } catch {
-    return reply.code(401).send({ message: 'Token inválido' })
+  } catch (error) {
+    return reply.status(401).send({ message: 'Invalid token' })
   }
 }
 
@@ -14,13 +14,13 @@ export async function authorizeAdmin(request: FastifyRequest, reply: FastifyRepl
   try {
     await request.jwtVerify()
 
-    console.log('Role do usuário autenticado:', request.user)
+    console.log('Authenticated user role:', request.user?.role)
 
     if (request.user?.role !== 'Admin') {
-      return reply.code(403).send({ message: 'Sem permissão de administrador.' })
+      return reply.status(403).send({ message: 'Administrator permission required' })
     }
-  } catch (err) {
-    return reply.code(401).send({ message: 'Token inválido' })
+  } catch (error) {
+    return reply.status(401).send({ message: 'Invalid token' })
   }
 }
 

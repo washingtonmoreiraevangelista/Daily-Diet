@@ -6,7 +6,7 @@ declare module 'knex/types/tables' {
       email: string
       password: string
       session_id?: string
-      role:string,
+      role: string,
       profilePicture: string | null
       createdAt: Date
     }

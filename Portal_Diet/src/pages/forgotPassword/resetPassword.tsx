@@ -18,7 +18,7 @@ import { forgotPassword } from '../../service/forgotPassword.service'
 import { Visibility, VisibilityOff } from "@mui/icons-material"
 
 export const ResetPassword = () => {
-  const [password, setPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
   const [confirmPassword, setConfirmPassword] = useState("")
   const [loading, setLoading] = useState(false)
 
@@ -42,7 +42,7 @@ export const ResetPassword = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    if (password !== confirmPassword) {
+    if (newPassword !== confirmPassword) {
       return showMessage("As senhas não coincidem.", "error")
     }
 
@@ -51,16 +51,13 @@ export const ResetPassword = () => {
     }
 
     setLoading(true)
-    try {
-      const response = await forgotPassword.postResetPassword(token, password)
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-        throw new Error(errorData.message || "Erro ao redefinir senha.")
-      }
+    try {
+
+      await forgotPassword.postResetPassword(token, newPassword)
 
       showMessage("Senha redefinida com sucesso!", "success")
-      setTimeout(() => navigate("/login"), 2000)
+      setTimeout(() => navigate("/"), 2000)
 
     } catch (err: any) {
       showMessage(err.message || "Erro inesperado.", "error")
@@ -75,6 +72,7 @@ export const ResetPassword = () => {
       setTimeout(() => navigate('/forgot-password'), 3000)
     }
   }, [token])
+
 
   return (
     <Box
@@ -100,8 +98,8 @@ export const ResetPassword = () => {
                 type={showPassword ? "text" : "password"}
                 fullWidth
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">

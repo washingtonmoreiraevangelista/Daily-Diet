@@ -27,11 +27,13 @@ export const ProfilePage = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [currentAvatarUrl, setCurrentAvatarUrl] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [snackbar, setSnackbar] = useState({
     open: false,
     message: '',
     severity: 'success' as 'success' | 'error'
   })
+
   const navigate = useNavigate()
 
   // Carrega os dados do perfil ao montar o componente
@@ -127,6 +129,7 @@ export const ProfilePage = () => {
         }
       }
 
+
       setSnackbar({
         open: true,
         message: 'Perfil atualizado com sucesso!',
@@ -144,6 +147,30 @@ export const ProfilePage = () => {
       setLoading(false)
     }
   }
+
+  const handleDelete = async () => {
+    setLoading(true)
+    try {
+      await authService.deleteProfile()
+      setSnackbar({
+        open: true,
+        message: 'Conta excluída com sucesso!',
+        severity: 'success'
+      })
+      setTimeout(() => navigate('/'), 2000) 
+    } catch (error: any) {
+      setSnackbar({
+        open: true,
+        message: error.message || 'Erro ao excluir a conta',
+        severity: 'error'
+      })
+    } finally {
+      setLoading(false)
+      setConfirmDelete(false)
+    }
+  }
+
+
 
   return (
     <Box sx={{ maxWidth: 500, mx: 'auto', mt: 4, p: 3, boxShadow: 3, borderRadius: 2 }}>
@@ -228,7 +255,38 @@ export const ProfilePage = () => {
       >
         {loading ? <CircularProgress size={24} /> : 'Salvar Alterações'}
       </Button>
-      
+
+      <Button
+        fullWidth
+        variant="outlined"
+        color="error"
+        sx={{ mt: 2 }}
+        onClick={() => setConfirmDelete(true)}
+        disabled={loading}
+      >
+        Excluir Conta
+      </Button>
+
+      {confirmDelete && (
+        <Snackbar open={true}>
+          <Alert
+            severity="warning"
+            action={
+              <>
+                <Button color="error" onClick={handleDelete}>
+                  Confirmar
+                </Button>
+                <Button color="inherit" onClick={() => setConfirmDelete(false)}>
+                  Cancelar
+                </Button>
+              </>
+            }
+          >
+            Tem certeza que deseja excluir sua conta? Esta ação é irreversível.
+          </Alert>
+        </Snackbar>
+      )}
+
       <Button
         component={RouterLink}
         to="/homePage"
@@ -239,7 +297,6 @@ export const ProfilePage = () => {
         Voltar ao início
       </Button>
 
-      {/* Snackbar para feedback */}
       <Snackbar
         open={snackbar.open}
         autoHideDuration={6000}

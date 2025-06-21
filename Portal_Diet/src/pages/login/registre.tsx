@@ -62,7 +62,7 @@ export const RegisterForm = () => {
       const response = await authService.register({ userName, email, password })
       localStorage.setItem("token", response.token)
 
-      await new Promise((r) => setTimeout(r, 1500))
+      await new Promise((r) => setTimeout(r, 3000))
 
       setSuccess("Usuário registrado com sucesso!")
       setUserName("")

@@ -41,23 +41,28 @@ export async function profileRoutes(app: FastifyInstance) {
     }
 
     const { userName, email, password } = request.body as {
-      userName: string,
-      email: string,
-      password: string,
+      userName?: string,
+      email?: string,
+      password?: string,
     }
 
-    // Gerar o hash da senha
-    const hashedPassword = await bcrypt.hash(password, 10)
-    await knex('users')
-      .where({ id: userId })
-      .update({
-        userName,
-        email,
-        password: hashedPassword,
-      })
+    const updateData: Record<string, any> = {}
+
+    if (userName) updateData.userName = userName
+    if (email) updateData.email = email
+    if (password) {
+      updateData.password = await bcrypt.hash(password, 10)
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      return reply.code(400).send({ error: 'Nenhum dado fornecido para atualização' })
+    }
+
+    await knex('users').where({ id: userId }).update(updateData)
 
     return reply.code(200).send({ message: 'User updated successfully!' })
   })
+
 
 
   app.post('/avatar', { preHandler: [authenticate] }, async (request, reply) => {
@@ -124,5 +129,30 @@ export async function profileRoutes(app: FastifyInstance) {
     return reply.code(200).send({ message: 'Photo updated successfully', filename, filepath })
 
   })
+
+
+  app.delete('/delete', { preHandler: [authenticate] }, async (request, reply) => {
+    const userId = (request.user as { sub: string }).sub
+
+    if (!userId) {
+      return reply.code(401).send({ error: 'Unauthorized' })
+    }
+
+    try {
+      const userExists = await knex('users').where({ id: userId }).first()
+
+      if (!userExists) {
+        return reply.code(404).send({ error: 'User not found' })
+      }
+
+      await knex('users').where({ id: userId }).delete()
+
+      return reply.code(200).send({ message: 'User deleted successfully' })
+    } catch (error) {
+      console.error('Erro ao deletar usuário:', error)
+      return reply.code(500).send({ error: 'Internal server error' })
+    }
+  })
+
 
 }

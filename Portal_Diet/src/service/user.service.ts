@@ -54,9 +54,9 @@ export const authService = {
     return `${import.meta.env.VITE_PROJETO_BACK}/uploads/${filename}`
   },
 
-  async deleteProfile() {
+  async deleteProfile(data: IUser) {
     try {
-      const response = await environment('/profile/delete', 'DELETE')
+      const response = await environment('/profile/delete', 'DELETE', data)
       return response
     } catch (error) {
       throw new Error('Erro ao deletar perfil')

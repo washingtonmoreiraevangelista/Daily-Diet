@@ -80,7 +80,7 @@ export async function usersRoutes(app: FastifyInstance) {
       { expiresIn: '1d' }
     )
 
-    return reply.send({ message: 'login successful ', token })
+    return reply.send({ message: 'login successful ', user, token })
   })
   
 

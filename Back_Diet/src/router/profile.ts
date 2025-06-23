@@ -131,28 +131,16 @@ export async function profileRoutes(app: FastifyInstance) {
   })
 
 
-  app.delete('/delete', { preHandler: [authenticate] }, async (request, reply) => {
-    const userId = (request.user as { sub: string }).sub
+app.delete('/delete', { preHandler: [authenticate] }, async (request, reply) => {
+  const userId = (request.user as { sub: string }).sub
 
-    if (!userId) {
-      return reply.code(401).send({ error: 'Unauthorized' })
-    }
-
-    try {
-      const userExists = await knex('users').where({ id: userId }).first()
-
-      if (!userExists) {
-        return reply.code(404).send({ error: 'User not found' })
-      }
-
-      await knex('users').where({ id: userId }).delete()
-
-      return reply.code(200).send({ message: 'User deleted successfully' })
-    } catch (error) {
-      console.error('Erro ao deletar usuário:', error)
-      return reply.code(500).send({ error: 'Internal server error' })
-    }
-  })
-
+  try {
+    await knex('users').where({ id: userId }).del()
+    return reply.code(204).send()
+  } catch (error) {
+    console.error(error)
+    return reply.code(500).send({ error: 'Erro ao excluir usuário.' })
+  }
+})
 
 }

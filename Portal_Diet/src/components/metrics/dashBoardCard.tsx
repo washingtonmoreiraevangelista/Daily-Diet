@@ -1,12 +1,11 @@
-import { Box, Typography } from '@mui/material'
+import { Box, Typography } from "@mui/material"
+import { useEffect, useState } from "react"
+import type { MetricsData } from "../../@types"
+import { FitnessCenter, LocalFireDepartment, Opacity, TrackChanges } from "@mui/icons-material"
+import { mealsService } from "../../service/meals.service"
+import type { Dayjs } from "dayjs"
+import { DateFilterCard } from "./dateFilter"
 import { StatCard } from './startCard'
-import { useEffect, useState } from 'react'
-import type { MetricsData } from '../../@types'
-import { FitnessCenter, LocalFireDepartment, Opacity, TrackChanges } from '@mui/icons-material'
-import { mealsService } from '../../service/meals.service'
-import type { Dayjs } from 'dayjs'
-import { DateFilterCard } from './dateFilter'
-
 export const DashboardStats = () => {
   const [metrics, setMetrics] = useState<MetricsData | null>(null)
   const [startDate, setStartDate] = useState<Dayjs | null>(null)
@@ -16,13 +15,13 @@ export const DashboardStats = () => {
     try {
       const queryParams =
         startDate && endDate
-          ? `?startDate=${startDate.format('YYYY-MM-DD')}&endDate=${endDate.format('YYYY-MM-DD')}`
-          : ''
+          ? `?startDate=${startDate.format("YYYY-MM-DD")}&endDate=${endDate.format("YYYY-MM-DD")}`
+          : ""
 
       const response = await mealsService.metricsDiet(queryParams)
       setMetrics(response)
     } catch (error) {
-      console.error('Erro ao buscar as métricas da dieta:', error)
+      console.error("Erro ao buscar as métricas da dieta:", error)
     }
   }
 
@@ -34,11 +33,6 @@ export const DashboardStats = () => {
 
   return (
     <Box>
-      <Typography variant="h4" color="text.secondary" mb={4}>
-        Resumo da Dieta
-      </Typography>
-
-
 
       <Box
         display="grid"
@@ -47,7 +41,7 @@ export const DashboardStats = () => {
         justifyItems="center"
       >
         <StatCard
-          icon={<LocalFireDepartment sx={{ fontSize: 20 }} />}
+          icon={<LocalFireDepartment sx={{ fontSize: 36 }} />}
           label="Refeições totais"
           value={`${metrics.totalMeals}`}
           sublabel={`Sequência: ${metrics.bestDietSequence} dias`}
@@ -56,20 +50,20 @@ export const DashboardStats = () => {
         />
 
         <StatCard
-          icon={<Opacity sx={{ fontSize: 20 }} />}
+          icon={<Opacity sx={{ fontSize: 36 }} />}
           label="Melhor sequência"
           value={`${metrics.bestDietSequence} dias`}
           sublabel={
             metrics.bestSequenceDates
               ? `${metrics.bestSequenceDates.startDate} → ${metrics.bestSequenceDates.endDate}`
-              : 'Nenhuma sequência'
+              : "Nenhuma sequência"
           }
           color="#8B5CF6"
           percent={(metrics.bestDietSequence / metrics.totalMeals) * 100}
         />
 
         <StatCard
-          icon={<FitnessCenter sx={{ fontSize: 20 }} />}
+          icon={<FitnessCenter sx={{ fontSize: 36 }} />}
           label="Dentro da dieta"
           value={`${metrics.withinDiet}`}
           sublabel={`${metrics.percentWithinDiet.toFixed(1)}%`}
@@ -78,7 +72,7 @@ export const DashboardStats = () => {
         />
 
         <StatCard
-          icon={<TrackChanges sx={{ fontSize: 20 }} />}
+          icon={<TrackChanges sx={{ fontSize: 36 }} />}
           label="Fora da dieta"
           value={`${metrics.outDiet}`}
           sublabel={`${metrics.percentOutDiet.toFixed(1)}%`}
@@ -92,17 +86,7 @@ export const DashboardStats = () => {
           setStartDate={setStartDate}
           setEndDate={setEndDate}
         />
-
       </Box>
     </Box>
   )
 }
-// <Box display="flex" gap={2} mb={4} flexWrap="wrap" justifyContent="flex-start">
-//   <DateFilterCard
-//     startDate={startDate}
-//     endDate={endDate}
-//     setStartDate={setStartDate}
-//     setEndDate={setEndDate}
-//   />
-//   <ImcCard />
-// </Box>

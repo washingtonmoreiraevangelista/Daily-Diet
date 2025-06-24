@@ -1,5 +1,6 @@
-import { ThemeProvider, CssBaseline, Container, Typography, Box, createTheme } from '@mui/material'
+import { ThemeProvider, CssBaseline, Container, Typography, Box, Button, createTheme } from '@mui/material'
 import { IMCCalculator } from './imcCalculator'
+import { useNavigate } from 'react-router'
 
 const theme = createTheme({
   palette: {
@@ -16,6 +17,8 @@ const theme = createTheme({
 })
 
 export const ImcPage = () => {
+  const navigate = useNavigate()
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -51,13 +54,25 @@ export const ImcPage = () => {
             <Typography
               variant="h6"
               color="text.secondary"
-              sx={{ maxWidth: '600px', mx: 'auto' }}
+              sx={{ maxWidth: '600px', mx: 'auto', mb: 3 }}
             >
               Calcule seu Índice de Massa Corporal de forma rápida e descubra se seu peso está dentro da faixa ideal para sua altura.
             </Typography>
           </Box>
+
           <IMCCalculator />
+          <Box textAlign="center" mt={4}>
+            <Button
+              variant="text"
+              color="primary"
+              onClick={() => navigate('/homePage')}
+            >
+              Página inicial
+            </Button>
+          </Box>
         </Container>
+
+
       </Box>
     </ThemeProvider>
   )

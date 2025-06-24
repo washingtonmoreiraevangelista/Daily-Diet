@@ -1,4 +1,4 @@
-import { AppBar, Toolbar, IconButton, Typography, Menu, MenuItem, Avatar, Box } from "@mui/material"
+import { AppBar, Toolbar, IconButton, Typography, Menu, MenuItem, Avatar, Box, Button } from "@mui/material"
 import { useState } from "react"
 import { useNavigate } from "react-router"
 import LogoutIcon from "@mui/icons-material/Logout"
@@ -17,17 +17,29 @@ export const Header = () => {
   }
 
   const handleLogout = () => {
-    localStorage.removeItem("token") 
-    navigate("/", { replace: true }) 
+    localStorage.removeItem("token")
+    navigate("/", { replace: true })
   }
 
   return (
     <Box>
-      <AppBar position="fixed"> 
+      <AppBar position="fixed">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 1 }}>
             Bem Vindo  !
           </Typography>
+          <Button
+            color="inherit"
+            onClick={() => navigate("/imc")}
+            sx={{
+              mr: 2,
+              borderBottom: "2px solid white",
+              borderRadius: 0,
+              pb: 0.5,
+            }}
+          >
+            IMC
+          </Button>
           <IconButton onClick={handleMenuOpen} color="inherit">
             <Avatar>
               <AccountCircleIcon />

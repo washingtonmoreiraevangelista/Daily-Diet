@@ -19,7 +19,7 @@ interface IMCResultProps {
   imc: number
 }
 
- export const IMCResult = ({ imc }: IMCResultProps) => {
+export const IMCResult = ({ imc }: IMCResultProps) => {
   const getClassificacao = (imc: number) => {
     if (imc < 18.5) {
       return {
@@ -63,7 +63,18 @@ interface IMCResultProps {
   const classificacao = getClassificacao(imc)
 
   return (
-    <Card elevation={3} sx={{ bgcolor: 'rgba(255, 255, 255, 0.9)', backdropFilter: 'blur(10px)', animation: 'slideIn 0.5s ease-out', '@keyframes slideIn': { from: { transform: 'translateX(20px)', opacity: 0 }, to: { transform: 'translateX(0)', opacity: 1 } } }}>
+    <Card
+      elevation={3}
+      sx={{
+        bgcolor: 'rgba(255, 255, 255, 0.9)',
+        backdropFilter: 'blur(10px)',
+        animation: 'slideIn 0.5s ease-out',
+        '@keyframes slideIn': {
+          from: { transform: 'translateX(20px)', opacity: 0 },
+          to: { transform: 'translateX(0)', opacity: 1 }
+        }
+      }}
+      >
       <CardHeader
         title={<Typography variant="h5" textAlign="center" fontWeight="bold">Seu Resultado</Typography>}
       />

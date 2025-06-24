@@ -55,7 +55,7 @@ export const IMCCalculator = () => {
               title={
                 <Box display="flex" alignItems="center" justifyContent="center" gap={1}>
                   <Calculate color="primary" />
-                  <Typography variant="h5" fontWeight="bold">Calcular IMC</Typography>
+                  <Typography variant="h5"  >Calcular IMC</Typography>
                 </Box>
               }
             />
@@ -97,8 +97,10 @@ export const IMCCalculator = () => {
                     disabled={!peso || !altura}
                     sx={{
                       py: 1.5,
-                      background: 'linear-gradient(45deg, #1976d2, #3f51b5)',
-                      '&:hover': { background: 'linear-gradient(45deg, #1565c0, #303f9f)' }
+                      background: 'linear-gradient( #a9d0ba)',
+                      '&:hover': {
+                        background: 'linear-gradient( #89abb4)'
+                      }
                     }}
                   >
                     Calcular IMC

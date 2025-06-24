@@ -150,7 +150,7 @@ export const HomePage = () => {
             gutterBottom
             sx={{
               fontWeight: 'bold',
-              background: 'linear-gradient(to right, #059669, #14b8a6)',
+              background: '#88c3b5',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               mb: 1,

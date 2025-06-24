@@ -4,20 +4,15 @@ const theme = responsiveFontSizes(
   createTheme({
     palette: {
       primary: {
-        main: '#256d64',
+        main: '#88c3b5',       
         contrastText: '#FFF',
       },
       secondary: {
-        main: '#ecfcf4',      // verde claro
+        main: '#c3dbcf',
         contrastText: '#000',
       },
-
-      // secondary: {
-      //   main: '#ecfcf4',
-      //   contrastText: '#FFF',
-      // },
       success: {
-        main: '#639B48',
+        main: '#5c65c0',
         contrastText: '#FFF',
       },
       info: {
@@ -26,10 +21,11 @@ const theme = responsiveFontSizes(
         contrastText: '#FFF',
       },
       error: {
-        main: '#E32424',
+        main: '#d83a31',
         contrastText: '#FFF',
-      },
+      }
     },
+
     components: {
       MuiPaper: {
         styleOverrides: {
@@ -50,9 +46,7 @@ const theme = responsiveFontSizes(
     shape: {
       borderRadius: 0,
     },
-  }),
+  })
 )
-
-
 
 export { theme, useTheme }

@@ -1,20 +1,8 @@
 import { ThemeProvider, CssBaseline, Container, Typography, Box, Button, createTheme } from '@mui/material'
 import { IMCCalculator } from './imcCalculator'
 import { useNavigate } from 'react-router'
+import { theme } from '../../core/styles/base'
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2'
-    },
-    secondary: {
-      main: '#dc004e'
-    },
-    background: {
-      default: '#f5f5f5'
-    }
-  }
-})
 
 export const ImcPage = () => {
   const navigate = useNavigate()
@@ -40,14 +28,13 @@ export const ImcPage = () => {
               variant="h2"
               component="h1"
               gutterBottom
-              sx={{
-                fontWeight: 'bold',
-                background: 'linear-gradient(45deg, #1976d2, #3f51b5)',
-                backgroundClip: 'text',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                mb: 2
-              }}
+               sx={{
+              fontWeight: 'bold',
+              background: '#88c3b5',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              mb: 1,
+            }}
             >
               Calculadora de IMC
             </Typography>

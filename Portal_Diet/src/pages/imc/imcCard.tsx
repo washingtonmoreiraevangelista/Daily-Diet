@@ -1,6 +1,19 @@
-import { ThemeProvider, CssBaseline, Container, Typography, Box } from '@mui/material'
-import { theme } from '../../core/styles/base'
+import { ThemeProvider, CssBaseline, Container, Typography, Box, createTheme } from '@mui/material'
 import { IMCCalculator } from './imcCalculator'
+
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2'
+    },
+    secondary: {
+      main: '#dc004e'
+    },
+    background: {
+      default: '#f5f5f5'
+    }
+  }
+})
 
 export const ImcPage = () => {
   return (
@@ -8,19 +21,21 @@ export const ImcPage = () => {
       <CssBaseline />
       <Box
         sx={{
-          minHeight: '100dvh',
+          width: '100%',
+          minHeight: '100vh',
           display: 'flex',
           flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'flex-start',
           background: 'linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%)',
-          py: 4,
-          px: 2,
-          alignItems: 'center'
+          py: 5,
         }}
       >
-        <Box maxWidth="md" width="100%">
+        <Container maxWidth="md">
           <Box textAlign="center" mb={4}>
             <Typography
               variant="h2"
+              component="h1"
               gutterBottom
               sx={{
                 fontWeight: 'bold',
@@ -42,9 +57,8 @@ export const ImcPage = () => {
             </Typography>
           </Box>
           <IMCCalculator />
-        </Box>
+        </Container>
       </Box>
     </ThemeProvider>
   )
-};
-
+}

@@ -6,9 +6,6 @@ import { FitnessCenter, LocalFireDepartment, Opacity, TrackChanges } from '@mui/
 import { mealsService } from '../../service/meals.service'
 import type { Dayjs } from 'dayjs'
 import { DateFilterCard } from './dateFilter'
-import { ImcCard } from './imcCard'
-
-
 
 export const DashboardStats = () => {
   const [metrics, setMetrics] = useState<MetricsData | null>(null)
@@ -42,43 +39,24 @@ export const DashboardStats = () => {
       </Typography>
 
 
-      <Box display="grid" gridTemplateColumns="repeat(auto-fit, minmax(211px, 1fr))" gap={1}>
-        <DateFilterCard
-          startDate={startDate}
-          endDate={endDate}
-          setStartDate={setStartDate}
-          setEndDate={setEndDate}
-        />
-        <Box display="flex" gap={2}>
-          <ImcCard />
-        </Box>
 
+      <Box
+        display="grid"
+        gridTemplateColumns="repeat(auto-fit, minmax(140px, 1fr))"
+        gap={2}
+        justifyItems="center"
+      >
         <StatCard
-          icon={<LocalFireDepartment sx={{ fontSize: 60 }} />}
+          icon={<LocalFireDepartment sx={{ fontSize: 20 }} />}
           label="Refeições totais"
           value={`${metrics.totalMeals}`}
           sublabel={`Sequência: ${metrics.bestDietSequence} dias`}
           color="#10B981"
           percent={metrics.percentWithinDiet}
         />
+
         <StatCard
-          icon={<FitnessCenter sx={{ fontSize: 60 }} />}
-          label="Dentro da dieta"
-          value={`${metrics.withinDiet}`}
-          sublabel={`${metrics.percentWithinDiet.toFixed(1)}%`}
-          color="#3B82F6"
-          percent={metrics.percentWithinDiet}
-        />
-        <StatCard
-          icon={<TrackChanges sx={{ fontSize: 60 }} />}
-          label="Fora da dieta"
-          value={`${metrics.outDiet}`}
-          sublabel={`${metrics.percentOutDiet.toFixed(1)}%`}
-          color="#F97316"
-          percent={metrics.percentOutDiet}
-        />
-        <StatCard
-          icon={<Opacity sx={{ fontSize: 60 }} />}
+          icon={<Opacity sx={{ fontSize: 20 }} />}
           label="Melhor sequência"
           value={`${metrics.bestDietSequence} dias`}
           sublabel={
@@ -90,7 +68,41 @@ export const DashboardStats = () => {
           percent={(metrics.bestDietSequence / metrics.totalMeals) * 100}
         />
 
+        <StatCard
+          icon={<FitnessCenter sx={{ fontSize: 20 }} />}
+          label="Dentro da dieta"
+          value={`${metrics.withinDiet}`}
+          sublabel={`${metrics.percentWithinDiet.toFixed(1)}%`}
+          color="#3B82F6"
+          percent={metrics.percentWithinDiet}
+        />
+
+        <StatCard
+          icon={<TrackChanges sx={{ fontSize: 20 }} />}
+          label="Fora da dieta"
+          value={`${metrics.outDiet}`}
+          sublabel={`${metrics.percentOutDiet.toFixed(1)}%`}
+          color="#F97316"
+          percent={metrics.percentOutDiet}
+        />
+
+        <DateFilterCard
+          startDate={startDate}
+          endDate={endDate}
+          setStartDate={setStartDate}
+          setEndDate={setEndDate}
+        />
+
       </Box>
     </Box>
   )
 }
+// <Box display="flex" gap={2} mb={4} flexWrap="wrap" justifyContent="flex-start">
+//   <DateFilterCard
+//     startDate={startDate}
+//     endDate={endDate}
+//     setStartDate={setStartDate}
+//     setEndDate={setEndDate}
+//   />
+//   <ImcCard />
+// </Box>

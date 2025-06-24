@@ -6,6 +6,7 @@ import { LoginRegisterSplit } from '../../pages/login/LoginRegister'
 import { ProfilePage } from '../../pages/perfil/perfil'
 import { ForgotPassword } from '../../pages/forgotPassword/forgotPassword'
 import { ResetPassword } from '../../pages/forgotPassword/resetPassword'
+import { ImcPage } from '../../pages/imc/imcCard'
 
 export const AppRouter = () => (
   <BrowserRouter>
@@ -20,6 +21,7 @@ export const AppRouter = () => (
       <Route element={<PrivateLayout />}>
         <Route path="/homepage" element={<HomePage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/imc" element={<ImcPage />} />
       </Route>
     </Routes>
   </BrowserRouter>

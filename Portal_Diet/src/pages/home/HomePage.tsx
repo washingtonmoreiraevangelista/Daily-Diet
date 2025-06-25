@@ -52,6 +52,8 @@ export const HomePage = () => {
     const token = localStorage.getItem('token')
     if (!token) {
       navigate('/login')
+    } else {
+      fetchMeals()
     }
   }, [navigate])
 
@@ -162,13 +164,8 @@ export const HomePage = () => {
     }, {})
   }, [meals, weekDateKeys])
 
-  const goPrevPage = () => {
-    setPage((p) => p - 1)
-  }
-
-  const goNextPage = () => {
-    setPage(page + 1)
-  }
+  const goPrevPage = () => setPage(p => p - 1)
+  const goNextPage = () => setPage(p => p + 1)
 
   return (
     <Box sx={{ width: '100%', minHeight: '100vh', background: 'linear-gradient(to bottom, #f0fdf4, #ccfbf1)', pb: 10 }}>
@@ -243,7 +240,7 @@ export const HomePage = () => {
 
       {/* Navegação das semanas */}
       <Box mt={4} display="flex" justifyContent="center" alignItems="center" gap={2}>
-        <Button onClick={goPrevPage} disabled={page === 1} sx={{ minWidth: 'auto', p: 1 }}>
+        <Button onClick={goPrevPage} sx={{ minWidth: 'auto', p: 1 }}>
           <ArrowBackIosNewIcon />
         </Button>
         <Button onClick={goNextPage} sx={{ minWidth: 'auto', p: 1 }}>

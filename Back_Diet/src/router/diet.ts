@@ -41,7 +41,7 @@ export const registerDiet = async (app: FastifyInstance) => {
   app.get('/all', { preHandler: [authenticate] }, async (request, reply) => {
     const userId = (request.user as { sub: string }).sub
 
-    const { page = '1', limit = '10' } = request.query as { page?: string, limit?: string }
+    const { page = '1', limit = '35' } = request.query as { page?: string, limit?: string }
 
     const pageNumber = parseInt(page)
     const limitNumber = parseInt(limit)
